@@ -448,10 +448,11 @@
 
             sessionStorage.setItem("userID", credentials.user.uid);
             sessionStorage.setItem("userFullname", signup_fullname.value);
+            window.location.href = "dashboard.html";
 
             const messageDiv = document.createElement("div");
             messageDiv.className = "success-message";
-            messageDiv.textContent = "CHeck Email For Verification Message!";
+            messageDiv.textContent = "Check Email For Verification Message!";
             console.log("userID:", sessionStorage.getItem("userID"));
             console.log(
               "userFullname:",
