@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BetaHarvest</title>
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: rgba(235, 235, 235, 1);
+        overflow-x: hidden;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 10px 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        animation: slideDown 1s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          transform: translateY(-100%);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      header .logo {
+        display: flex;
+        align-items: center;
+      }
+
+      header .logo img {
+        height: 40px;
+        transition: transform 0.3s;
+        margin-right: 10px;
+      }
+
+      header .logo img:hover {
+        transform: rotate(360deg);
+      }
+
+      header .nav-buttons button {
+        background-color: #4caf50;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        margin: 0 5px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      header .nav-buttons button:hover {
+        background-color: #45a049;
+      }
+
+      main {
+        padding: 20px;
+        animation: fadeIn 1s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #e6f5f0;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #4caf50;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #007ea6;
+      }
+
+      .feature-section {
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+        border-bottom: 1px solid #cccccc;
+        animation: fadeInUp 1s ease-in-out;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .feature-section:nth-child(even) {
+        flex-direction: row-reverse;
+      }
+
+      .feature-section .text-content,
+      .feature-section .image-content {
+        flex: 1;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .feature-section img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 10px;
+        transition: transform 0.3s;
+      }
+
+      .feature-section img:hover {
+        transform: scale(1.05);
+      }
+
+      .feature-section h2 {
+        color: #2e7d32;
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .feature-section p {
+        color: #333333;
+        font-size: 16px;
+        margin-bottom: 20px;
+      }
+
+      .feature-section button {
+        background-color: #2e7d32;
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+      }
+
+      .feature-section button:hover {
+        background-color: #256029;
+      }
+
+      @media (max-width: 768px) {
+        .feature-section {
+          flex-direction: column !important;
+        }
+      }
+
+      footer {
+        background-color: #2e7d32;
+        color: #ffffff;
+        padding: 20px 0;
+        font-size: 14px;
+        animation: fadeInUp 1s ease-in-out;
+      }
+
+      .footer-container {
+        display: flex;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .footer-section {
+        flex: 1;
+        margin: 0 10px;
+      }
+
+      .footer-section h4 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #ffffff;
+      }
+
+      .footer-section ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .footer-section ul li {
+        margin-bottom: 5px;
+      }
+
+      .footer-section ul li a {
+        color: #ffffff;
+        text-decoration: none;
+      }
+
+      .footer-section ul li a:hover {
+        text-decoration: underline;
+      }
+
+      .footer-bottom {
+        text-align: center;
+        margin-top: 20px;
+        border-top: 1px solid #ffffff;
+        padding-top: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <img src="images/logobeta.svg" alt="Beta Harvest Logo" />
+        <h4>BetaHarvest</h4>
+      </div>
+      <div class="nav-buttons">
+        <button onclick="location.href='/login'">Login</button>
+        <button onclick="location.href='/signup.html'">Signup</button>
+      </div>
+    </header>
+    <main>
+      <section class="feature-section">
+        <div class="image-content">
+          <img src="images/real.jpg" alt="Farmers and Buyers" />
+        </div>
+        <div class="text-content">
+          <h2>Weather-Based Planting Advice</h2>
+          <p>
+            Get accurate and timely planting advice based on your location's
+            weather conditions. Maximize your crop yield by planting at the
+            optimal time.
+          </p>
+          <button onclick="location.href='/get-started'">Get Started</button>
+        </div>
+      </section>
+      <section class="feature-section">
+        <div class="image-content">
+          <img src="images/farmer_wit.jpeg" alt="AI Technology" />
+        </div>
+        <div class="text-content">
+          <h2>Empowering Farmer with AI Technology</h2>
+          <p>
+            Our innovative AI assistant provides farmers with real-time advice
+            and support. From weather forecasts and pest control to crop care
+            tips, MyBetaHarvest’s AI helps you make informed decisions, ensuring
+            a healthier and more productive harvest.
+          </p>
+          <button onclick="location.href='/signup.html'">Signup</button>
+        </div>
+      </section>
+      <section class="feature-section">
+        <div class="image-content">
+          <img src="images/sustain.jpeg" alt="Sustainable Future" />
+        </div>
+        <div class="text-content">
+          <h2>Building a Sustainable Future Together</h2>
+          <p>
+            At Beta Harvest, we believe in the power of community. By Empowering
+            local farmers with Technology to help improve crop yield, we promote
+            sustainable farming practices and support local economies. Join us
+            in cultivating a greener, with improved harvests and better yields.
+          </p>
+          <button onclick="location.href='/login'">Login</button>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <div class="footer-container">
+        <div class="footer-section company">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about">About us</a></li>
+            <li><a href="/contact">Contact us</a></li>
+            <li><a href="/feedback">Feedback</a></li>
+          </ul>
+        </div>
+        <div class="footer-section social">
+          <h4>Social</h4>
+          <ul>
+            <li>
+              <a href="https://www.facebook.com/betaharvest" target="_blank"
+                >Facebook</a
+              >
+            </li>
+            <li>
+              <a href="https://www.instagram.com/betaharvest" target="_blank"
+                >Instagram</a
+              >
+            </li>
+            <li>
+              <a
+                href="https://www.linkedin.com/company/betaharvest"
+                target="_blank"
+                >LinkedIn</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div class="footer-section contact">
+          <h4>Contact</h4>
+          <ul>
+            <li><a href="mailto:clementakhimien25@gmail.com">Email</a></li>
+            <li><a href="/contact">Contact form</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 MyBetaHarvest. All rights reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

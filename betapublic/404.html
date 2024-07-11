@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page Not Found</title>
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
+
+    <style>
+      body {
+        background: #eceff1;
+        color: rgba(0, 0, 0, 0.87);
+        font-family: "Roboto", Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      #message {
+        background: white;
+        max-width: 400px;
+        margin: 16px;
+        padding: 32px 24px 16px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 1s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      #message h1 {
+        font-size: 36px;
+        font-weight: 300;
+        color: rgba(0, 0, 0, 0.6);
+        margin: 0 0 16px;
+        animation: slideIn 1s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateY(-30px);
+        }
+        to {
+          transform: translateY(0);
+        }
+      }
+
+      #message p {
+        line-height: 140%;
+        margin: 16px 0 24px;
+        font-size: 16px;
+        animation: slideIn 1s ease-out;
+      }
+
+      #message a {
+        display: inline-block;
+        background: #039be5;
+        text-transform: uppercase;
+        text-decoration: none;
+        color: white;
+        padding: 16px 24px;
+        border-radius: 4px;
+        margin-top: 16px;
+        transition: background 0.3s ease;
+        animation: fadeIn 1s ease-out;
+      }
+
+      #message a:hover {
+        background: #0277bd;
+      }
+
+      #message code {
+        background: #f5f5f5;
+        padding: 2px 4px;
+        border-radius: 4px;
+      }
+
+      @media (max-width: 600px) {
+        body,
+        #message {
+          margin-top: 0;
+          background: white;
+          box-shadow: none;
+        }
+        body {
+          border-top: 16px solid #ffa100;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="message">
+      <h1>Oops!</h1>
+      <p>
+        It looks like you stumbled upon a page that has not been developed yet.
+      </p>
+      <p>
+        The specified file was not found on this website. Please check the URL
+        for mistakes and try again.
+      </p>
+      <a href="/">Go Home</a>
+    </div>
+  </body>
+</html>
