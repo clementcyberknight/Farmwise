@@ -21,11 +21,6 @@
         margin: 0;
         padding-top: 90px;
       }
-      @media (max-width: 768px) {
-        body {
-          padding-top: 150px;
-        }
-      }
 
       header {
         background-color: #ffffff;
@@ -116,6 +111,7 @@
       .container {
         padding: 16px;
       }
+
       ::-webkit-scrollbar {
         width: 12px;
       }
@@ -197,6 +193,54 @@
         }
         100% {
           transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding-top: 150px;
+        }
+
+        header .logo h3 {
+          font-size: 1.2rem;
+        }
+
+        header .home-icon img {
+          height: 30px;
+          padding-right: 15px;
+        }
+
+        .form_container {
+          padding: 20px;
+          width: 95%;
+          margin: 10px auto;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="number"],
+        select {
+          padding: 8px;
+          margin: 8px 0;
+        }
+
+        button {
+          padding: 12px 15px;
+          margin: 8px 0;
+        }
+
+        .success-message {
+          font-size: 14px;
+          width: 250px;
+          padding: 8px;
+        }
+
+        .alert {
+          font-size: 14px;
+          padding: 10px;
+          margin: 10px 0;
         }
       }
     </style>
@@ -323,7 +367,7 @@
             >
           </div>
 
-          <button type="submit">Next</button>
+          <button type="submit">Signup</button>
           <p class="switch-form">
             Already registered? <a href="/login.html">Login</a>
           </p>
@@ -342,6 +386,7 @@
       import {
         getAuth,
         createUserWithEmailAndPassword,
+        sendEmailVerification,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
       const firebaseConfig = {
@@ -387,11 +432,18 @@
             var ref = doc(db, "UserAuthList", credentials.user.uid);
             await setDoc(ref, {
               fullname: signup_fullname.value,
-              Email: signup_email,
+              Email: signup_email.value, // Ensure only the value is stored
               address: signup_address.value,
               crop: signup_crop.value,
               state: signup_state.value,
               country: "Nigeria",
+            });
+            sendEmailVerification(auth.currentUser).then(() => {
+              const messageDiv = document.createElement("div");
+              messageDiv.className = "success-message";
+              messageDiv.textContent = "Email Verification Link Sent!";
+              document.body.appendChild(messageDiv);
+              setTimeout(() => document.body.removeChild(messageDiv), 3000);
             });
 
             sessionStorage.setItem("userID", credentials.user.uid);
@@ -399,16 +451,15 @@
 
             const messageDiv = document.createElement("div");
             messageDiv.className = "success-message";
-            messageDiv.textContent = "User signed up successfully!";
+            messageDiv.textContent = "CHeck Email For Verification Message!";
             console.log("userID:", sessionStorage.getItem("userID"));
             console.log(
               "userFullname:",
               sessionStorage.getItem("userFullname")
             );
-
+            signup_form.reset();
             document.body.appendChild(messageDiv);
             setTimeout(() => document.body.removeChild(messageDiv), 3000);
-            window.location.href = "signup1.html";
             document.getElementById("signup_fullname").value = "";
             document.getElementById("signup_email").value = "";
             document.getElementById("signup_password").value = "";

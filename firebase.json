@@ -1,6 +1,10 @@
 {
-    "hosting": {
-      "public": "betapublic",
-      "cleanUrls": true
-    }
+  "hosting": {
+    "public": "betapublic",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
   }
+}
