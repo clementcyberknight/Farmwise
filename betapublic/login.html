@@ -53,7 +53,7 @@
 
       header .home-icon img {
         height: 40px;
-        padding-right: 30px;
+        padding-right: 50px;
         cursor: pointer;
       }
 
@@ -141,6 +141,19 @@
       .switch-form a:hover {
         text-decoration: underline;
       }
+      .success-message {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-size: 16px;
+        border-radius: 5px;
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 300px;
+      }
 
       .alert {
         padding: 15px;
@@ -189,7 +202,7 @@
 
         header .home-icon img {
           height: 30px;
-          padding-right: 15px;
+          padding-right: 50px;
         }
 
         .form_container {
@@ -262,6 +275,11 @@
     <script type="module">
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
+        getFirestore,
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import {
         getAuth,
         signInWithEmailAndPassword,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -277,6 +295,7 @@
       };
 
       const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
       const auth = getAuth(app);
 
       let login_email = document.getElementById("login_email");
@@ -313,8 +332,6 @@
                 messageDiv.textContent = "Login successful!";
                 document.body.appendChild(messageDiv);
                 setTimeout(() => document.body.removeChild(messageDiv), 3000);
-
-                // Redirect to user dashboard or another page
                 window.location.href = "dashboard.html";
               } else {
                 displayAlert("No such document!");
