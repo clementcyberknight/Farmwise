@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BetaHarvest - Farm Log</title>
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #eceff1;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .app-container {
+        padding-top: 80px; /* Add space below the fixed header */
+      }
+
+      header {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+      }
+
+      header .logo {
+        display: flex;
+        align-items: center;
+      }
+
+      header .logo img {
+        height: 40px;
+        padding: 5px;
+      }
+
+      header .logo h3 {
+        margin-left: 10px;
+        font-size: 1.2rem;
+        color: #333;
+      }
+
+      .settings-icon {
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .settings-icon img {
+        height: 24px;
+        cursor: pointer;
+        transition: transform 0.5s;
+      }
+
+      .rotate {
+        animation: rotate360 0.5s;
+      }
+
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .settings-menu {
+        display: none;
+        position: absolute;
+        right: 10px;
+        padding: 15px;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+
+      .settings-menu a {
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      #farmLogForm {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease-in-out;
+        opacity: 0;
+        transform: translateY(20px);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      #farmLogForm.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #farmLogForm.hidden {
+        display: none;
+      }
+
+      form {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        margin-top: 10px;
+      }
+
+      input,
+      textarea {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+      }
+
+      button {
+        padding: 10px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .add-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        font-size: 24px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .add-btn:hover {
+        transform: scale(1.1);
+      }
+
+      @media (max-width: 600px) {
+        header .logo img {
+          height: 30px;
+        }
+
+        header .logo h3 {
+          font-size: 1rem;
+        }
+
+        .settings-icon img {
+          height: 20px;
+        }
+
+        .settings-menu {
+          right: 5px;
+          top: 55px;
+          padding: 10px;
+        }
+
+        .settings-menu a {
+          padding: 8px 15px;
+          font-size: 12px;
+        }
+
+        main {
+          padding: 10px;
+        }
+
+        #farmLogForm {
+          padding: 15px;
+        }
+
+        .add-btn {
+          width: 48px;
+          height: 48px;
+          font-size: 20px;
+        }
+      }
+      .spinner {
+        display: none;
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid #4caf50;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .alert {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        display: none;
+      }
+
+      .alert-success {
+        color: #2ec55b;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+
+      .alert-error {
+        color: #d8091e;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      #farmLogList {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      #logEntries {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      #logEntries li {
+        border-bottom: 1px solid #eee;
+        padding: 10px 0;
+      }
+
+      #logEntries li:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <header>
+        <div class="logo">
+          <img src="images/logobeta.svg" alt="BetaHarvest logo" />
+          <h3>BetaHarvest</h3>
+        </div>
+        <div class="relative">
+          <button class="settings-icon" onclick="toggleSettingsMenu()">
+            <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
+          </button>
+          <div class="settings-menu" id="settingsMenu">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="profile.html">Profile</a>
+            <a href="profile.html">Crops Details</a>
+            <a href="farmer-log.html">Farm Log</a>
+            <a href="bot.html">ChatBot</a>
+            <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+          </div>
+        </div>
+      </header>
+      <main>
+        <div id="farmLogList" class="hidden">
+          <h2>Farm Log Entries</h2>
+          <ul id="logEntries"></ul>
+        </div>
+        <div id="alertContainer">
+          <div id="successAlert" class="alert alert-success" role="alert">
+            Log entry added successfully!
+          </div>
+          <div id="errorAlert" class="alert alert-error" role="alert">
+            An error occurred. Please try again.
+          </div>
+        </div>
+        <div id="spinner" class="spinner"></div>
+        <div id="farmLogForm" class="hidden">
+          <h2>Farm Log</h2>
+          <form id="logForm">
+            <label for="date">Date:</label>
+            <input type="date" id="date" required />
+
+            <label for="time">Time:</label>
+            <input type="time" id="time" required />
+
+            <label for="activity">Activity:</label>
+            <input type="text" id="activity" required />
+
+            <label for="note">Note:</label>
+            <textarea id="note"></textarea>
+
+            <button type="submit">Save Log</button>
+          </form>
+        </div>
+      </main>
+      <button id="addLogBtn" class="add-btn">+</button>
+    </div>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+      import {
+        getDocs,
+        query,
+        orderBy,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBYhzRyNuh7NWh8YXIdHyuwZHE_fIZGX9Y",
+        authDomain: "mybetaharvest.firebaseapp.com",
+        projectId: "mybetaharvest",
+        storageBucket: "mybetaharvest.appspot.com",
+        messagingSenderId: "370925949496",
+        appId: "1:370925949496:web:6fe3dea100315059f40ccd",
+        measurementId: "G-BE44KWEGR2",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const addLogBtn = document.getElementById("addLogBtn");
+      const farmLogForm = document.getElementById("farmLogForm");
+      const logForm = document.getElementById("logForm");
+      const spinner = document.getElementById("spinner");
+      const successAlert = document.getElementById("successAlert");
+      const errorAlert = document.getElementById("errorAlert");
+      const farmLogList = document.getElementById("farmLogList");
+      const logEntries = document.getElementById("logEntries");
+      const userID = sessionStorage.getItem("userID");
+
+      if (!userID) {
+        window.location.href = "login.html";
+      }
+
+      let isFormVisible = false;
+
+      async function fetchAndDisplayLogs() {
+        const farmerslogCollectionRef = collection(
+          db,
+          "farmer_log",
+          userID,
+          "log"
+        );
+        const q = query(farmerslogCollectionRef, orderBy("date", "desc"));
+
+        try {
+          const querySnapshot = await getDocs(q);
+          logEntries.innerHTML = ""; // Clear existing entries
+          querySnapshot.forEach((doc) => {
+            const log = doc.data();
+            const li = document.createElement("li");
+            li.innerHTML = `
+        <strong>Date:</strong> ${log.date} | <strong>Time:</strong> ${
+              log.time
+            }<br>
+        <strong>Activity:</strong> ${log.activity}<br>
+        <strong>Note:</strong> ${log.note || "N/A"}
+      `;
+            logEntries.appendChild(li);
+          });
+          farmLogList.classList.remove("hidden");
+        } catch (error) {
+          console.error("Error fetching logs: ", error);
+          errorAlert.style.display = "block";
+          errorAlert.textContent = `Error fetching logs: ${error.message}`;
+        }
+      }
+
+      logForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        spinner.style.display = "block";
+
+        let logsData = {
+          date: document.getElementById("date").value,
+          time: document.getElementById("time").value,
+          activity: document.getElementById("activity").value,
+          note: document.getElementById("note").value,
+        };
+
+        const farmerslogCollectionRef = collection(
+          db,
+          "farmer_log",
+          userID,
+          "log"
+        );
+
+        try {
+          await addDoc(farmerslogCollectionRef, logsData);
+          successAlert.style.display = "block";
+          setTimeout(() => {
+            successAlert.style.display = "none";
+          }, 3000);
+          logForm.reset();
+          fetchAndDisplayLogs();
+        } catch (error) {
+          console.error("Error adding document: ", error);
+          errorAlert.style.display = "block";
+          errorAlert.textContent = `Error: ${error.message}`;
+          setTimeout(() => {
+            errorAlert.style.display = "none";
+          }, 5000);
+        } finally {
+          spinner.style.display = "none";
+        }
+      });
+
+      function toggleSettingsMenu() {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      }
+
+      addLogBtn.addEventListener("click", () => {
+        isFormVisible = !isFormVisible;
+        if (isFormVisible) {
+          farmLogForm.classList.remove("hidden");
+          farmLogList.classList.add("hidden");
+          setTimeout(() => {
+            farmLogForm.classList.add("visible");
+          }, 10);
+        } else {
+          farmLogForm.classList.remove("visible");
+          setTimeout(() => {
+            farmLogForm.classList.add("hidden");
+            farmLogList.classList.remove("hidden");
+          }, 300);
+          fetchAndDisplayLogs(); // Refresh the log list when toggling back to it
+        }
+      });
+      window.addEventListener("load", fetchAndDisplayLogs);
+    </script>
+  </body>
+</html>

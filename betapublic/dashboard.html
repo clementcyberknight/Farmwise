@@ -24,7 +24,6 @@
         flex-direction: column;
         min-height: 100vh;
       }
-
       header {
         background-color: #ffffff;
         padding: 10px 20px;
@@ -38,29 +37,70 @@
         align-items: center;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
-
       header .logo {
         display: flex;
         align-items: center;
       }
-
       header .logo img {
         height: 50px;
         padding: 15px;
       }
-
       header .logo h3 {
         margin-left: 10px;
         font-size: 1.5rem;
         color: #333;
       }
-
       header .home-icon img {
         height: 40px;
         padding-right: 30px;
         cursor: pointer;
       }
-
+      .settings-icon {
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
+      .settings-icon img {
+        height: 30px;
+        padding-right: 30px;
+        cursor: pointer;
+        transition: transform 0.5s;
+      }
+      .rotate {
+        animation: rotate360 0.5s;
+      }
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .settings-menu {
+        display: none;
+        position: absolute;
+        right: 50px;
+        padding: 30px;
+        top: 80px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+      .settings-menu a {
+        display: block;
+        padding: 20px 50px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
       .main-content {
         display: flex;
         flex-direction: column;
@@ -69,7 +109,6 @@
         margin-top: 90px;
         flex-grow: 1;
       }
-
       .dashboard {
         display: grid;
         grid-template-columns: 1fr;
@@ -77,62 +116,55 @@
         width: 100%;
         max-width: 1200px;
       }
-
       .dashboard-item {
         background: #ffffff;
         padding: 20px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
-
       .weather-card,
       .crop-card,
-      .logs-card,
       .recommendation-card {
         display: flex;
         flex-direction: column;
         align-items: center;
         text-align: center;
       }
-
       .weather-card h2,
       .crop-card h2,
-      .logs-card h2,
       .recommendation-card h2 {
         margin: 0;
         font-size: 1.2rem;
       }
-
-      .logs-card .log-entry {
-        text-align: left;
-        width: 100%;
-      }
-
       .recommendation-card .ai-recommendation {
         text-align: left;
         width: 100%;
       }
-
       @media (min-width: 768px) {
         .dashboard {
           grid-template-columns: repeat(2, 1fr);
         }
-
-        .logs-card,
         .recommendation-card {
           grid-column: span 2;
         }
       }
-
       @media (min-width: 1024px) {
         .dashboard {
           grid-template-columns: repeat(3, 1fr);
         }
-
-        .logs-card,
         .recommendation-card {
           grid-column: span 3;
         }
+      }
+      .logs-card {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .hidden {
+        display: none;
       }
     </style>
   </head>
@@ -142,8 +174,24 @@
         <img src="images/logobeta.svg" alt="BetaHarvest logo" />
         <h3>BetaHarvest</h3>
       </div>
-        <img src="images/home.png" alt="Home" />
-      </a>
+      <div class="relative">
+        <button class="settings-icon" onclick="toggleSettingsMenu()">
+          <img
+            src="images/menu.png"
+            alt="menu_icon"
+            class="h-8"
+            id="menuIcon"
+          />
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="profile.html">Profile</a>
+          <a href="profile.html">Crops Details</a>
+          <a href="farmer-log.html">Farm Log</a>
+          <a href="bot.html">ChatBot</a>
+          <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+        </div>
+      </div>
     </header>
     <div class="main-content">
       <div class="dashboard">
@@ -157,16 +205,11 @@
           <h2>Crop Stage</h2>
           <p>20% - Fertilizing Stage</p>
         </div>
-        <div class="dashboard-item logs-card">
-          <h2>Recent Farmer Logs</h2>
-          <div class="log-entry">
-            <p>
-              today i added 10kg of mkv fertilizer, and i remove some weed that
-              was growing around the crop
-            </p>
-            <small>12/7/2024</small>
-          </div>
+        <div id="recentFarmLog" class="dashboard-item logs-card hidden">
+          <h2>Recent Farmer's Log</h2>
+          <div id="recentLogEntry"></div>
         </div>
+
         <div class="dashboard-item recommendation-card">
           <h2>AI Recommendation</h2>
           <div class="ai-recommendation">
@@ -178,7 +221,76 @@
         </div>
       </div>
     </div>
-    <script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        addDoc,
+        getDocs,
+        query,
+        orderBy,
+        limit,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBYhzRyNuh7NWh8YXIdHyuwZHE_fIZGX9Y",
+        authDomain: "mybetaharvest.firebaseapp.com",
+        projectId: "mybetaharvest",
+        storageBucket: "mybetaharvest.appspot.com",
+        messagingSenderId: "370925949496",
+        appId: "1:370925949496:web:6fe3dea100315059f40ccd",
+        measurementId: "G-BE44KWEGR2",
+      };
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      const userID = sessionStorage.getItem("userID");
+
+      if (!userID) {
+        window.location.href = "login.html";
+      }
+
+      async function fetchAndDisplayLogs() {
+        const farmerslogCollectionRef = collection(
+          db,
+          "farmer_log",
+          userID,
+          "log"
+        );
+        const q = query(
+          farmerslogCollectionRef,
+          orderBy("date", "desc"),
+          limit(1)
+        ); // Fetch the most recent log
+
+        try {
+          const querySnapshot = await getDocs(q);
+          const recentLogEntry = document.getElementById("recentLogEntry");
+          const recentFarmLog = document.getElementById("recentFarmLog");
+
+          if (querySnapshot.empty) {
+            recentLogEntry.innerHTML = "No recent log";
+          } else {
+            querySnapshot.forEach((doc) => {
+              const log = doc.data();
+              recentLogEntry.innerHTML = `
+            <p><strong>Date:</strong> ${log.date} | <strong>Time:</strong> ${
+                log.time
+              }</p>
+            <p><strong>Activity:</strong> ${log.activity}</p>
+            <p><strong>Note:</strong> ${log.note || "N/A"}</p>
+          `;
+            });
+          }
+
+          recentFarmLog.classList.remove("hidden");
+          recentFarmLog.classList.add("dashboard-item", "logs-card");
+        } catch (error) {
+          console.error("Error fetching logs: ", error);
+          recentLogEntry.innerHTML = `Error fetching logs: ${error.message}`;
+        }
+      }
       const apiKey = "6643a51c878047b6aed175732241007"; // Replace with your WeatherAPI.com API key
       const weatherData = document.getElementById("weather-data");
 
@@ -222,9 +334,18 @@
       function displayError(message) {
         weatherData.innerHTML = `<p class="error">${message}</p>`;
       }
-
+      function toggleSettingsMenu() {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      }
       // Get the user's location on page load
       window.onload = getLocation;
+      window.toggleSettingsMenu = toggleSettingsMenu;
+      window.addEventListener("load", fetchAndDisplayLogs);
     </script>
   </body>
 </html>
