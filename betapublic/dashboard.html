@@ -197,36 +197,28 @@
       <div class="dashboard">
         <div class="dashboard-item weather-card">
           <h2>Today Weather Condition</h2>
-          <div id="weather-data">
-            <!-- Weather details will be displayed here -->
-          </div>
+          <div id="weather-data"></div>
         </div>
         <div class="dashboard-item crop-card">
           <h2>Crop Stage</h2>
-          <p>20% - Fertilizing Stage</p>
+          <p id="crop-stage-prediction">Loading...</p>
         </div>
         <div id="recentFarmLog" class="dashboard-item logs-card hidden">
           <h2>Recent Farmer's Log</h2>
           <div id="recentLogEntry"></div>
         </div>
-
         <div class="dashboard-item recommendation-card">
           <h2>AI Recommendation</h2>
-          <div class="ai-recommendation">
-            <p>
-              i will advice you to add 10 liters of water to the plant for
-              better yield add a acid regulator
-            </p>
-          </div>
+          <div class="ai-recommendation" id="ai-recommendation"></div>
         </div>
       </div>
     </div>
     <script type="module">
+      import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
         getFirestore,
         collection,
-        addDoc,
         getDocs,
         query,
         orderBy,
@@ -242,16 +234,40 @@
         appId: "1:370925949496:web:6fe3dea100315059f40ccd",
         measurementId: "G-BE44KWEGR2",
       };
+
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
-
       const userID = sessionStorage.getItem("userID");
 
       if (!userID) {
         window.location.href = "login.html";
       }
 
-      async function fetchAndDisplayLogs() {
+      const API_KEY = "AIzaSyBNUqanEBKJvOrOvmkmsDnHVGTv7kVXZ44";
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-pro-latest",
+      });
+
+      async function fetchAllLogs() {
+        const farmerslogCollectionRef = collection(
+          db,
+          "farmer_log",
+          userID,
+          "log"
+        );
+        const q = query(farmerslogCollectionRef, orderBy("date", "desc"));
+
+        try {
+          const querySnapshot = await getDocs(q);
+          return querySnapshot.docs.map((doc) => doc.data());
+        } catch (error) {
+          console.error("Error fetching logs: ", error);
+          return [];
+        }
+      }
+
+      async function fetchRecentLog() {
         const farmerslogCollectionRef = collection(
           db,
           "farmer_log",
@@ -262,90 +278,111 @@
           farmerslogCollectionRef,
           orderBy("date", "desc"),
           limit(1)
-        ); // Fetch the most recent log
+        );
 
         try {
           const querySnapshot = await getDocs(q);
-          const recentLogEntry = document.getElementById("recentLogEntry");
-          const recentFarmLog = document.getElementById("recentFarmLog");
-
-          if (querySnapshot.empty) {
-            recentLogEntry.innerHTML = "No recent log";
-          } else {
-            querySnapshot.forEach((doc) => {
-              const log = doc.data();
-              recentLogEntry.innerHTML = `
-            <p><strong>Date:</strong> ${log.date} | <strong>Time:</strong> ${
-                log.time
-              }</p>
-            <p><strong>Activity:</strong> ${log.activity}</p>
-            <p><strong>Note:</strong> ${log.note || "N/A"}</p>
-          `;
-            });
-          }
-
-          recentFarmLog.classList.remove("hidden");
-          recentFarmLog.classList.add("dashboard-item", "logs-card");
+          return querySnapshot.empty ? null : querySnapshot.docs[0].data();
         } catch (error) {
-          console.error("Error fetching logs: ", error);
-          recentLogEntry.innerHTML = `Error fetching logs: ${error.message}`;
+          console.error("Error fetching recent log: ", error);
+          return null;
         }
       }
-      const apiKey = "6643a51c878047b6aed175732241007"; // Replace with your WeatherAPI.com API key
-      const weatherData = document.getElementById("weather-data");
+
+      async function predictCropStage(logs) {
+        const prompt = `Act as a farm bot predicting crop stage based on farmer's logs. Example: "10% - seedling stage". Predict stage based on: ${JSON.stringify(
+          logs
+        )}. Output max 30 characters.`;
+
+        try {
+          const result = await model.generateContent(prompt);
+          return result.response.text();
+        } catch (error) {
+          console.error("Error predicting crop stage:", error);
+          return "Error predicting crop stage";
+        }
+      }
+
+      function updateCropStageDisplay(prediction) {
+        document.getElementById("crop-stage-prediction").textContent =
+          prediction;
+      }
+
+      function updateRecentLogDisplay(log) {
+        const recentLogEntry = document.getElementById("recentLogEntry");
+        const recentFarmLog = document.getElementById("recentFarmLog");
+
+        if (log) {
+          recentLogEntry.innerHTML = `
+                  <p><strong>Date:</strong> ${
+                    log.date
+                  } | <strong>Time:</strong> ${log.time}</p>
+                  <p><strong>Activity:</strong> ${log.activity}</p>
+                  <p><strong>Note:</strong> ${log.note || "N/A"}</p>
+              `;
+          recentFarmLog.classList.remove("hidden");
+        } else {
+          recentLogEntry.innerHTML = "No recent log";
+        }
+      }
+
+      async function fetchWeatherData(lat, lon) {
+        const apiKey = "6643a51c878047b6aed175732241007";
+        try {
+          const response = await fetch(
+            `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}`
+          );
+          const data = await response.json();
+          document.getElementById("weather-data").innerHTML = `
+                  <p>${data.location.name}, ${data.location.region}</p>
+                  <p>${data.current.temp_c}°C - ${data.current.condition.text}</p>
+              `;
+        } catch (error) {
+          console.error("Error fetching weather data:", error);
+        }
+      }
 
       function getLocation() {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const latitude = position.coords.latitude;
-              const longitude = position.coords.longitude;
-              fetchWeatherData(latitude, longitude);
-            },
-            (error) => {
-              displayError(
-                "Unable to retrieve your location. Please enable location services and refresh the page."
-              );
-              console.error(error);
-            }
+            (position) =>
+              fetchWeatherData(
+                position.coords.latitude,
+                position.coords.longitude
+              ),
+            (error) => console.error("Error getting location:", error)
           );
         } else {
-          displayError("Geolocation is not supported by your browser.");
+          console.error("Geolocation is not supported by this browser.");
         }
       }
 
-      function fetchWeatherData(lat, lon) {
-        fetch(
-          `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            const weatherDetails = `
-              <p>${data.location.name}, ${data.location.region}</p>
-              <p>${data.current.temp_c}°C - ${data.current.condition.text}</p>
-            `;
-            weatherData.innerHTML = weatherDetails;
-          })
-          .catch((error) => {
-            console.error("Error fetching weather data:", error);
-          });
+      async function initializeDashboard() {
+        getLocation();
+        const allLogs = await fetchAllLogs();
+        const recentLog = await fetchRecentLog();
+
+        if (allLogs.length > 0) {
+          const prediction = await predictCropStage(allLogs);
+          updateCropStageDisplay(prediction);
+        } else {
+          updateCropStageDisplay("No logs available");
+        }
+
+        updateRecentLogDisplay(recentLog);
       }
 
-      function displayError(message) {
-        weatherData.innerHTML = `<p class="error">${message}</p>`;
-      }
-      function toggleSettingsMenu() {
+      window.addEventListener("load", initializeDashboard);
+
+      // Make toggleSettingsMenu globally accessible
+      window.toggleSettingsMenu = function () {
         const settingsMenu = document.getElementById("settingsMenu");
         const menuIcon = document.getElementById("menuIcon");
         const isOpen = settingsMenu.style.display === "block";
         settingsMenu.style.display = isOpen ? "none" : "block";
         menuIcon.classList.add("rotate");
         setTimeout(() => menuIcon.classList.remove("rotate"), 500);
-      }
-      // Get the user's location on page load
-      window.onload = getLocation;
-      window.toggleSettingsMenu = toggleSettingsMenu;
-      window.addEventListener("load", fetchAndDisplayLogs);
+      };
     </script>
   </body>
 </html>
