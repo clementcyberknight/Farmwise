@@ -59,18 +59,21 @@
         border: none;
         background: none;
         padding: 0;
+        padding-right: 40px;
         margin: 0;
         cursor: pointer;
       }
+
       .settings-icon img {
-        height: 30px;
-        padding-right: 30px;
+        height: 24px;
         cursor: pointer;
         transition: transform 0.5s;
       }
+
       .rotate {
         animation: rotate360 0.5s;
       }
+
       @keyframes rotate360 {
         from {
           transform: rotate(0deg);
@@ -79,28 +82,32 @@
           transform: rotate(360deg);
         }
       }
+
       .settings-menu {
         display: none;
         position: absolute;
-        right: 50px;
-        padding: 30px;
-        top: 80px;
+        right: 10px;
+        padding: 15px;
+        top: 60px;
         background-color: white;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         border-radius: 8px;
         overflow: hidden;
         z-index: 1001;
       }
+
       .settings-menu a {
         display: block;
-        padding: 20px 50px;
+        padding: 10px 20px;
         text-decoration: none;
         color: #333;
         font-size: 14px;
       }
+
       .settings-menu a:hover {
         background-color: #f0f4f8;
       }
+
       .main-content {
         display: flex;
         flex-direction: column;
@@ -176,12 +183,7 @@
       </div>
       <div class="relative">
         <button class="settings-icon" onclick="toggleSettingsMenu()">
-          <img
-            src="images/menu.png"
-            alt="menu_icon"
-            class="h-8"
-            id="menuIcon"
-          />
+          <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
         </button>
         <div class="settings-menu" id="settingsMenu">
           <a href="dashboard.html">Dashboard</a>
@@ -219,10 +221,10 @@
       import {
         getFirestore,
         collection,
-        getDocs,
         query,
         orderBy,
         limit,
+        getDocs,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -249,24 +251,6 @@
         model: "gemini-1.5-pro-latest",
       });
 
-      async function fetchAllLogs() {
-        const farmerslogCollectionRef = collection(
-          db,
-          "farmer_log",
-          userID,
-          "log"
-        );
-        const q = query(farmerslogCollectionRef, orderBy("date", "desc"));
-
-        try {
-          const querySnapshot = await getDocs(q);
-          return querySnapshot.docs.map((doc) => doc.data());
-        } catch (error) {
-          console.error("Error fetching logs: ", error);
-          return [];
-        }
-      }
-
       async function fetchRecentLog() {
         const farmerslogCollectionRef = collection(
           db,
@@ -287,25 +271,6 @@
           console.error("Error fetching recent log: ", error);
           return null;
         }
-      }
-
-      async function predictCropStage(logs) {
-        const prompt = `Act as a farm bot predicting crop stage based on farmer's logs. Example: "10% - seedling stage". Predict stage based on: ${JSON.stringify(
-          logs
-        )}. Output max 30 characters.`;
-
-        try {
-          const result = await model.generateContent(prompt);
-          return result.response.text();
-        } catch (error) {
-          console.error("Error predicting crop stage:", error);
-          return "Error predicting crop stage";
-        }
-      }
-
-      function updateCropStageDisplay(prediction) {
-        document.getElementById("crop-stage-prediction").textContent =
-          prediction;
       }
 
       function updateRecentLogDisplay(log) {
@@ -356,23 +321,55 @@
           console.error("Geolocation is not supported by this browser.");
         }
       }
+      async function fetchAndDisplayCropStage() {
+        const cropStageElement = document.querySelector(".crop-card");
+
+        try {
+          const crop_stageCollectionRef = collection(
+            db,
+            "crop_stage",
+            userID,
+            "stage"
+          );
+          const q = query(
+            crop_stageCollectionRef,
+            orderBy("timestamp", "desc"),
+            limit(1)
+          );
+          const querySnapshot = await getDocs(q);
+
+          if (!querySnapshot.empty) {
+            const latestStage = querySnapshot.docs[0].data().prediction;
+            cropStageElement.innerHTML = `
+        <h2>Crop Stage</h2>
+        <p>${latestStage}</p>
+      `;
+          } else {
+            cropStageElement.innerHTML = `
+        <h2>Crop Stage</h2>
+        <p>No crop stage data available yet.</p>
+      `;
+          }
+        } catch (error) {
+          console.error("Error fetching crop stage: ", error);
+          cropStageElement.innerHTML = `
+      <h2>Crop Stage</h2>
+      <p>Error fetching crop stage.</p>
+    `;
+        }
+      }
+
+      window.addEventListener("load", fetchAndDisplayCropStage);
 
       async function initializeDashboard() {
         getLocation();
-        const allLogs = await fetchAllLogs();
         const recentLog = await fetchRecentLog();
-
-        if (allLogs.length > 0) {
-          const prediction = await predictCropStage(allLogs);
-          updateCropStageDisplay(prediction);
-        } else {
-          updateCropStageDisplay("No logs available");
-        }
 
         updateRecentLogDisplay(recentLog);
       }
 
       window.addEventListener("load", initializeDashboard);
+      window.addEventListener("load", fetchAndDisplayCropStage);
 
       // Make toggleSettingsMenu globally accessible
       window.toggleSettingsMenu = function () {

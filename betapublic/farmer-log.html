@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BetaHarvest - Farm Log</title>
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
     <style>
       body {
         font-family: "Roboto", sans-serif;
@@ -340,7 +346,18 @@
       </main>
       <button id="addLogBtn" class="add-btn">+</button>
     </div>
+    <script>
+      function toggleSettingsMenu() {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      }
+    </script>
     <script type="module">
+      import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
       import {
         getFirestore,
@@ -432,8 +449,25 @@
           "log"
         );
 
+        const crop_stageCollectionRef = collection(
+          db,
+          "crop_stage",
+          userID,
+          "stage"
+        );
+
         try {
           await addDoc(farmerslogCollectionRef, logsData);
+
+          const allLogs = await fetchAllLogs();
+          const prediction = await predictCropStage(allLogs);
+
+          await addDoc(crop_stageCollectionRef, {
+            prediction: prediction,
+            timestamp: new Date(),
+          });
+
+          console.log("predicting....");
           successAlert.style.display = "block";
           setTimeout(() => {
             successAlert.style.display = "none";
@@ -451,14 +485,42 @@
           spinner.style.display = "none";
         }
       });
+      const API_KEY = "AIzaSyBNUqanEBKJvOrOvmkmsDnHVGTv7kVXZ44";
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-pro-latest",
+      });
 
-      function toggleSettingsMenu() {
-        const settingsMenu = document.getElementById("settingsMenu");
-        const menuIcon = document.getElementById("menuIcon");
-        const isOpen = settingsMenu.style.display === "block";
-        settingsMenu.style.display = isOpen ? "none" : "block";
-        menuIcon.classList.add("rotate");
-        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      async function fetchAllLogs() {
+        const farmerslogCollectionRef = collection(
+          db,
+          "farmer_log",
+          userID,
+          "log"
+        );
+        const q = query(farmerslogCollectionRef, orderBy("date", "desc"));
+
+        try {
+          const querySnapshot = await getDocs(q);
+          return querySnapshot.docs.map((doc) => doc.data());
+        } catch (error) {
+          console.error("Error fetching logs: ", error);
+          return [];
+        }
+      }
+
+      async function predictCropStage(logs) {
+        const prompt = `Act as a farm bot predicting crop stage based on farmer's logs. Example: "10% - seedling stage". Predict stage based on: ${JSON.stringify(
+          logs
+        )}. Output max 30 characters.`;
+
+        try {
+          const result = await model.generateContent(prompt);
+          return result.response.text();
+        } catch (error) {
+          console.error("Error predicting crop stage:", error);
+          return "Error predicting crop stage";
+        }
       }
 
       addLogBtn.addEventListener("click", () => {
@@ -478,7 +540,7 @@
           fetchAndDisplayLogs(); // Refresh the log list when toggling back to it
         }
       });
-      window.addEventListener("load", fetchAndDisplayLogs);
+      window.addEventListener("load", fetchAndDisplayLogs());
     </script>
   </body>
 </html>
