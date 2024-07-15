@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crops Detail</title>
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
+
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #eceff1;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      .app-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-top: 80px;
+        flex-grow: 1;
+      }
+
+      header {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+      }
+
+      header .logo {
+        display: flex;
+        align-items: center;
+      }
+
+      header .logo img {
+        height: 50px;
+        padding: 15px;
+      }
+
+      header .logo h3 {
+        margin-left: 10px;
+        font-size: 1.5rem;
+        color: #333;
+      }
+
+      header .home-icon img {
+        height: 40px;
+        padding-right: 30px;
+        cursor: pointer;
+      }
+
+      .settings-icon {
+        border: none;
+        background: none;
+        padding: 0;
+        padding-right: 20px;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .settings-icon img {
+        height: 24px;
+        cursor: pointer;
+        transition: transform 0.5s;
+      }
+
+      .rotate {
+        animation: rotate360 0.5s;
+      }
+
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .settings-menu {
+        display: none;
+        position: absolute;
+        right: 50px;
+        padding: 15px;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+
+      .settings-menu a {
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
+
+      main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        margin-top: 80px;
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+      }
+
+      .output-container {
+        display: none; /* Initially hide the output container */
+        margin-top: 20px;
+        width: 100%;
+        max-width: 600px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: left;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+
+      .search-container {
+        display: flex;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      input[type="text"] {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px 0 0 4px;
+      }
+
+      .search-btn {
+        padding: 10px 15px;
+        background-color: #4caf50;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .search-btn img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .search-btn:hover {
+        background-color: #1e6122;
+      }
+
+      .loader {
+        display: none;
+        margin: 20px auto;
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid #4caf50;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <img src="images/logobeta.svg" alt="BetaHarvest logo" />
+        <h3>BetaHarvest</h3>
+      </div>
+      <div class="relative">
+        <button class="settings-icon" onclick="toggleSettingsMenu()">
+          <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="profile.html">Profile</a>
+          <a href="crop_detail.html">Crops Details</a>
+          <a href="farmer-log.html">Farm Log</a>
+          <a href="bot.html">ChatBot</a>
+          <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <h1>Find More detail about a crop</h1>
+      <div class="search-container">
+        <input type="text" placeholder="Search..." />
+        <button class="search-btn">
+          <img src="images/search.png" alt="Search" />
+        </button>
+      </div>
+      <div id="loader" class="loader"></div>
+      <div id="output" class="output-container"></div>
+    </main>
+
+    <script type="module">
+      import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+      document.addEventListener("DOMContentLoaded", () => {
+        const searchBtn = document.querySelector(".search-btn");
+        const searchInput = document.querySelector('input[type="text"]');
+        const outputText = document.getElementById("output");
+        const outputContainer = document.querySelector(".output-container");
+
+        const prompt =
+          "'i want you to act as an AI agribot. you provide essential information on crop planting seasons, optimal weather conditions for growth of the crop, and everything farmers need to know about a crop before planting. all the user has to do is enter a crop. 'do not introduce yourself or talk about anything about yourself just provide farmer's all the useful information about a crop before planting', 'do not answer any question not relating to crop' 'note all content generated should be in the scope of nigeria only. all crop advise should be advise base on nigeria weather condition and soil'; user crop=>: ";
+
+        searchBtn.addEventListener("click", async () => {
+          const input = prompt + " " + searchInput.value;
+          if (input.trim() === "") {
+            outputText.innerHTML = "Please enter a crop to search.";
+            return;
+          }
+          loader.style.display = "block";
+          outputText.innerHTML = "";
+
+          try {
+            const searchedText = await search(input);
+            const formattedText = markdownToHTML(searchedText);
+            outputText.innerHTML = formattedText;
+            outputContainer.style.display = "block"; // Show the output container
+          } catch (error) {
+            outputText.innerHTML = "Error occurred while searching.";
+            console.error("Error:", error);
+          } finally {
+            loader.style.display = "none";
+          }
+        });
+
+        async function search(inputText) {
+          const API_KEY = "AIzaSyA2Hk3YvkseqShBc1tgF_FKEd2ng3XlXLo";
+          const genAI = new GoogleGenerativeAI(API_KEY);
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const result = await model.generateContentStream(inputText);
+
+          let searchedText = "";
+          for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            searchedText += chunkText;
+          }
+
+          return searchedText;
+        }
+
+        function markdownToHTML(markdownText) {
+          // Converts markdown bold **text** to HTML bold <strong>text</strong>
+          markdownText = markdownText.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
+          );
+          // Converts markdown italic *text* to HTML italic <em>text</em>
+          markdownText = markdownText.replace(
+            /\*(.*?)\*(?!\*)/g,
+            "<em>$1</em>"
+          );
+          // Converts markdown bullets * item to HTML list <li>item</li>
+          markdownText = markdownText
+            .replace(/^\s*\*\s+(.*)/gm, "<li>$1</li>")
+            .replace(/<\/li>\n<li>/g, "</li><li>");
+          // Wraps lines that are list items with <ul></ul>
+          if (markdownText.includes("<li>")) {
+            markdownText = "<ul>" + markdownText + "</ul>";
+          }
+          // Converts markdown headers ## text to HTML headers <h2>text</h2>
+          markdownText = markdownText.replace(/^##\s+(.*)$/gm, "<h2>$1</h2>");
+          markdownText = markdownText.replace(/^###\s+(.*)$/gm, "<h3>$1</h3>");
+          // Converts markdown headers # text to HTML headers <h1>text</h1>
+          markdownText = markdownText.replace(/^#\s+(.*)$/gm, "<h1>$1</h1>");
+          return markdownText;
+        }
+
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            searchBtn.click();
+          }
+        });
+      });
+
+      window.toggleSettingsMenu = function () {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      };
+    </script>
+  </body>
+</html>

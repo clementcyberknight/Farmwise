@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "mybetaharvest",
     "public": "betapublic",
     "cleanUrls": true,
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
