@@ -76,7 +76,7 @@
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         width: 90%;
-        max-width: 400px;
+        max-width: 300px;
         margin: 20px auto;
         animation: fadeIn 1s ease-in-out;
         transition: all 0.3s ease;
@@ -414,7 +414,8 @@
             spinner.style.display = "none";
           })
           .catch((error) => {
-            displayAlert("Login failed: " + error.message);
+            displayAlert("Login failed");
+            console.log(error.message);
             spinner.style.display = "none";
             console.log(error.code, error.message);
           });
