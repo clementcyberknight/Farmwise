@@ -253,7 +253,7 @@
         });
 
         async function search(inputText) {
-          const API_KEY = "AIzaSyA2Hk3YvkseqShBc1tgF_FKEd2ng3XlXLo";
+          const API_KEY = "AIzaSyCviXiVUSELhyRvBCT-_RK0CxxIq9nABbk";
           const genAI = new GoogleGenerativeAI(API_KEY);
           const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
           const result = await model.generateContentStream(inputText);
