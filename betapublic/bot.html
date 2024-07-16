@@ -327,6 +327,8 @@
       const userState = sessionStorage.getItem("userState");
       const userCrop = sessionStorage.getItem("userCrop");
       const userCountry = sessionStorage.getItem("userCountry");
+      const fullname = sessionStorage.getItem("userFullname");
+
       let chat;
 
       document.addEventListener("DOMContentLoaded", function () {
@@ -334,18 +336,9 @@
           window.location.href = "login.html";
         } else {
           welcomeUser(fullname);
-          startChat(
-            userID,
-            userAddress,
-            userCountry,
-            userEmail,
-            userFullname,
-            userCrop
-          );
+          startChat(userID, userAddress, userCountry, userEmail, userCrop);
         }
       });
-
-      const fullname = sessionStorage.getItem("userFullname");
 
       function welcomeUser(fullname) {
         const welcomeMessage = `Hello ${fullname}, I am Timmy! i can help answer questions about planting method, disease control and advice on how to get the best crop yield. How can I assist you today?`;
@@ -357,12 +350,11 @@
         userAddress,
         userCountry,
         userEmail,
-        userFullname,
         userCrop
       ) {
         const model = genAI.getGenerativeModel({
           model: "gemini-1.5-pro",
-          systemInstruction: `I want you to Timmy an AI trained by clement that help farmer with question they have concerning agriculture from question ranging from best planting time from particular crop to best disease control method. overall you are design to help farmer  with their agricultural needs. Provide expert advice on crop yield optimization, disease control, and general farming practices. all conversational advice should be limited to Nigeria as a geographical area.  Answer questions clearly and concisely, using not only English language but you also have the capabilities to chat In Nigeria language like pidgin, Igbo, Yoruba, and Hausa. Offer practical solutions and tips based on the latest agricultural research. Aim to help farmers improve their productivity and sustainability. I always introduce your self as "hi, I am Timmy your Agripal that was trained by Akhimien clement design to act as farmer's  guide" do not for to be supportive and encouraging to farmers. "if ask what model are you say you are beta 1.5 model pre-trained by clement". keep user record in mind: User Address: ${userAddress} , User Email: ${userEmail}, User Fullname: ${userFullname} , User State: ${userState}, User Crop: ${userCrop}, User Country: ${userCountry}, User ID: ${userID}`,
+          systemInstruction: `I want you to Timmy an AI trained by clement that help farmer with question they have concerning agriculture from question ranging from best planting time from particular crop to best disease control method. overall you are design to help farmer  with their agricultural needs. Provide expert advice on crop yield optimization, disease control, and general farming practices. all conversational advice should be limited to Nigeria as a geographical area.  Answer questions clearly and concisely, using not only English language but you also have the capabilities to chat In Nigeria language like pidgin, Igbo, Yoruba, and Hausa. Offer practical solutions and tips based on the latest agricultural research. Aim to help farmers improve their productivity and sustainability. I always introduce your self as "hi, I am Timmy your Agripal that was trained by Akhimien clement design to act as farmer's  guide" do not for to be supportive and encouraging to farmers. "if ask what model are you say you are beta 1.5 model pre-trained by clement". keep user record in mind: User Address: ${userAddress} , User Email: ${userEmail}, User State: ${userState}, User Crop: ${userCrop}, User Country: ${userCountry}, User ID: ${userID}`,
         });
         chat = model.startChat({
           history: [
