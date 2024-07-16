@@ -130,7 +130,7 @@
         text-align: center;
         font-family: var(--font-copernicus), ui-serif, Georgia, "Cambria",
           "Times New Roman", Times, serif;
-        color: #423535;
+        color: #161515;
       }
 
       .search-container {
@@ -198,7 +198,6 @@
         </button>
         <div class="settings-menu" id="settingsMenu">
           <a href="dashboard.html">Dashboard</a>
-          <a href="profile.html">Profile</a>
           <a href="crop_detail.html">Crops Details</a>
           <a href="farmer-log.html">Farm Log</a>
           <a href="bot.html">ChatBot</a>
@@ -268,6 +267,12 @@
         }
 
         function markdownToHTML(markdownText) {
+          // Converts markdown headers # text to HTML headers <h1>text</h1>
+          markdownText = markdownText.replace(/^#\s+(.*)$/gm, "<h1>$1</h1>");
+          // Converts markdown headers ## text to HTML headers <h2>text</h2>
+          markdownText = markdownText.replace(/^##\s+(.*)$/gm, "<h2>$1</h2>");
+          // Converts markdown headers ### text to HTML headers <h3>text</h3>
+          markdownText = markdownText.replace(/^###\s+(.*)$/gm, "<h3>$1</h3>");
           // Converts markdown bold **text** to HTML bold <strong>text</strong>
           markdownText = markdownText.replace(
             /\*\*(.*?)\*\*/g,
@@ -286,11 +291,6 @@
           if (markdownText.includes("<li>")) {
             markdownText = "<ul>" + markdownText + "</ul>";
           }
-          // Converts markdown headers ## text to HTML headers <h2>text</h2>
-          markdownText = markdownText.replace(/^##\s+(.*)$/gm, "<h2>$1</h2>");
-          markdownText = markdownText.replace(/^###\s+(.*)$/gm, "<h3>$1</h3>");
-          // Converts markdown headers # text to HTML headers <h1>text</h1>
-          markdownText = markdownText.replace(/^#\s+(.*)$/gm, "<h1>$1</h1>");
           return markdownText;
         }
 

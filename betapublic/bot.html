@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChatBot - BetaHarvest</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Roboto", sans-serif;
+      }
+
+      body,
+      html {
+        height: 100%;
+        background-color: #dcdce7;
+        color: #333;
+        padding-top: 30px;
+      }
+
+      header {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        text-align: left;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      header .logo img {
+        height: 50px;
+        padding-left: 10px;
+      }
+
+      header .settings-icon img {
+        height: 30px;
+        cursor: pointer;
+        padding-right: 10px;
+      }
+
+      .markdown {
+        line-height: 1.6;
+        font-size: 16px;
+      }
+
+      .markdown h2 {
+        font-size: 1.5em;
+        margin-top: 20px;
+        margin-bottom: 10px;
+        color: #333;
+      }
+
+      .markdown ul {
+        margin-left: 20px;
+        list-style-type: disc;
+      }
+
+      .markdown li {
+        margin-bottom: 5px;
+      }
+
+      .markdown strong {
+        font-weight: bold;
+      }
+
+      .markdown em {
+        font-style: italic;
+      }
+
+      .markdown div {
+        margin-bottom: 10px;
+      }
+
+      .main {
+        display: flex;
+        flex-direction: column;
+        padding: 20px;
+        height: calc(100vh - var(--top-bar-height, 60px));
+        /* Adjust if your top bar height changes */
+        overflow-y: auto;
+      }
+
+      .chat-container {
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      .search-box {
+        display: flex;
+        align-items: center;
+        background-color: #ffffff;
+        padding: 15px 20px;
+        border-radius: 25px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        font-size: 24px;
+        margin-top: 10px;
+        height: auto;
+      }
+
+      .search-box textarea {
+        flex: 1;
+        border: none;
+        background: none;
+        margin-left: 10px;
+        outline: none;
+        font-size: 17px;
+        resize: none;
+        height: 30px;
+        overflow: hidden;
+        transition: height 0.2s ease;
+      }
+
+      .search-box img {
+        width: 24px;
+        cursor: pointer;
+      }
+
+      .message {
+        margin: 5px;
+        padding: 10px;
+        border-radius: 10px;
+        color: white;
+      }
+
+      .user-message {
+        background-color: #344634;
+        text-align: right;
+      }
+
+      .ai-response {
+        background-color: #62b2f3;
+        text-align: left;
+      }
+
+      .skeleton-loading {
+        display: none;
+      }
+
+      .skeleton-loading.active {
+        display: block;
+      }
+
+      .skeleton-loading .message {
+        background-color: #a1a1a1;
+        /* Gray background */
+        animation: pulse 1.5s infinite;
+        /* Animation */
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 0.6;
+        }
+
+        50% {
+          opacity: 0.9;
+        }
+
+        100% {
+          opacity: 0.6;
+        }
+      }
+
+      .message-label {
+        font-size: 10px;
+        opacity: 0.8;
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: auto;
+        padding: 5px;
+        font-size: 14px;
+      }
+
+      .footer a {
+        color: #4a90e2;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+      .settings-icon {
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .settings-icon img {
+        height: 24px;
+        cursor: pointer;
+        transition: transform 0.5s;
+      }
+
+      .rotate {
+        animation: rotate360 0.5s;
+      }
+
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .settings-menu {
+        display: none;
+        position: absolute;
+        right: 50px;
+        padding: 15px;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+
+      .settings-menu a {
+        display: block;
+        padding: 20px 50px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #e6f5f0;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #6d796e;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #007ea6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <img src="images/logobeta.svg" alt="BetaHarvest logo" />
+      </div>
+      <div class="relative">
+        <button class="settings-icon" onclick="toggleSettingsMenu()">
+          <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="crop_detail.html">Crops Details</a>
+          <a href="farmer-log.html">Farm Log</a>
+          <a href="bot.html">ChatBot</a>
+          <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="main">
+      <div class="chat-container" id="message-area">
+        <!-- Messages will appear here -->
+      </div>
+      <div class="skeleton-loading" id="skeleton-loading">
+        <div class="message markdown"></div>
+        <div class="message markdown"></div>
+        <div class="message markdown"></div>
+      </div>
+      <div class="search-box">
+        <textarea
+          placeholder="Enter Prompt Here"
+          id="user-input"
+          rows="1"
+        ></textarea>
+        <img src="images/send_icon.png" alt="Send Button" class="send-button" />
+      </div>
+    </div>
+    <script>
+      window.toggleSettingsMenu = function () {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      };
+    </script>
+    <script type="module">
+      import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+      const API_KEY = "AIzaSyCviXiVUSELhyRvBCT-_RK0CxxIq9nABbk";
+      const genAI = new GoogleGenerativeAI(API_KEY);
+
+      const userID = sessionStorage.getItem("userID");
+      const userAddress = sessionStorage.getItem("userAddress");
+      const userEmail = sessionStorage.getItem("userEmail");
+      const userState = sessionStorage.getItem("userState");
+      const userCrop = sessionStorage.getItem("userCrop");
+      const userCountry = sessionStorage.getItem("userCountry");
+      let chat;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        if (!userID) {
+          window.location.href = "login.html";
+        } else {
+          welcomeUser(fullname);
+          startChat(
+            userID,
+            userAddress,
+            userCountry,
+            userEmail,
+            userFullname,
+            userCrop
+          );
+        }
+      });
+
+      const fullname = sessionStorage.getItem("userFullname");
+
+      function welcomeUser(fullname) {
+        const welcomeMessage = `Hello ${fullname}, I am Timmy! i can help answer questions about planting method, disease control and advice on how to get the best crop yield. How can I assist you today?`;
+        displayMessage(welcomeMessage, "ai-response", "AI Response");
+      }
+
+      async function startChat(
+        userID,
+        userAddress,
+        userCountry,
+        userEmail,
+        userFullname,
+        userCrop
+      ) {
+        const model = genAI.getGenerativeModel({
+          model: "gemini-1.5-pro",
+          systemInstruction: `I want you to Timmy an AI trained by clement that help farmer with question they have concerning agriculture from question ranging from best planting time from particular crop to best disease control method. overall you are design to help farmer  with their agricultural needs. Provide expert advice on crop yield optimization, disease control, and general farming practices. all conversational advice should be limited to Nigeria as a geographical area.  Answer questions clearly and concisely, using not only English language but you also have the capabilities to chat In Nigeria language like pidgin, Igbo, Yoruba, and Hausa. Offer practical solutions and tips based on the latest agricultural research. Aim to help farmers improve their productivity and sustainability. I always introduce your self as "hi, I am Timmy your Agripal that was trained by Akhimien clement design to act as farmer's  guide" do not for to be supportive and encouraging to farmers. "if ask what model are you say you are beta 1.5 model pre-trained by clement". keep user record in mind: User Address: ${userAddress} , User Email: ${userEmail}, User Fullname: ${userFullname} , User State: ${userState}, User Crop: ${userCrop}, User Country: ${userCountry}, User ID: ${userID}`,
+        });
+        chat = model.startChat({
+          history: [
+            {
+              role: "user",
+              parts: [{ text: "hi\n" }],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.5,
+            topP: 0.95,
+            topK: 64,
+            maxOutputTokens: 3000,
+            responseMimeType: "text/plain",
+          },
+        });
+      }
+
+      async function runChat(prompt) {
+        const skeletonLoading = document.getElementById("skeleton-loading");
+        skeletonLoading.classList.add("active"); // Show skeleton loading
+
+        try {
+          const result = await chat.sendMessage(prompt);
+          const response = await result.response;
+          const text = response.text();
+
+          displayMessage(text, "ai-response", "AI Response");
+        } catch (error) {
+          console.error("Error generating content:", error);
+          displayMessage(
+            "Sorry, there was an error processing your request due to safety concern. Please try again later.",
+            "ai-response",
+            "AI Response"
+          );
+        } finally {
+          skeletonLoading.classList.remove("active"); // Hide skeleton loading after response
+        }
+      }
+
+      document
+        .querySelector(".send-button")
+        .addEventListener("click", handleMessage);
+      document;
+      document
+        .querySelector("#user-input")
+        .addEventListener("keypress", function (event) {
+          if (event.key === "Enter" && event.shiftKey) {
+            event.preventDefault(); // Prevent newline on Enter
+            handleMessage();
+          } else if (event.key === "Enter" && !event.shiftKey) {
+            this.style.height = "50px"; // Adjust height to fit two lines
+          }
+        });
+
+      document
+        .querySelector("#user-input")
+        .addEventListener("input", function () {
+          if (this.value.indexOf("\n") === -1) {
+            this.style.height = "30px"; // Reset to initial height if no newline
+          }
+        });
+
+      async function handleMessage() {
+        const inputField = document.getElementById("user-input");
+        const prompt = inputField.value.trim();
+        if (prompt !== "") {
+          displayMessage(prompt, "user-message", "User");
+          inputField.value = ""; // Clear input field
+          await runChat(prompt);
+        }
+      }
+
+      function displayMessage(messageText, cssClass, label) {
+        const messageArea = document.getElementById("message-area");
+        let messageDiv = document.createElement("div");
+        messageDiv.classList.add("message", cssClass, "markdown");
+
+        let textNode = document.createElement("div");
+        // Convert markdown to HTML
+        textNode.innerHTML = markdownToHTML(messageText);
+
+        messageDiv.appendChild(textNode);
+        messageArea.appendChild(messageDiv);
+
+        // Scroll to the bottom of the message area
+        messageArea.scrollTop = messageArea.scrollHeight;
+      }
+
+      function markdownToHTML(markdown) {
+        // Simple markdown to HTML conversion (expand this as needed)
+        return markdown
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // bold
+          .replace(/\*(.*?)\*/g, "<em>$1</em>") // italic
+          .replace(/\n/g, "<br>"); // line breaks
+      }
+    </script>
+  </body>
+</html>
