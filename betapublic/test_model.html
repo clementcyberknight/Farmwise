@@ -3,34 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Linkxy</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="icon"
-      sizes="16x16"
-      href="images/linkxy.png"
-      type="image/x-png"
-    />
+    <title>BetaHarvest</title>
     <style>
-      * {
+      body {
+        font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
-        box-sizing: border-box;
+        background-color: #f0f0f0;
+      }
+
+      body {
         font-family: "Roboto", sans-serif;
+        background-color: #eceff1;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
       }
-
-      body,
-      html {
-        height: 100%;
-        background-color: #f4f4f9;
-        color: #333;
-      }
-
       header {
-        background-color: #f3f1f1;
+        background-color: #ffffff;
         padding: 10px 20px;
         text-align: left;
         width: 100%;
@@ -40,343 +32,391 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       }
-
-      header .logo img {
-        height: 50px;
-        padding-left: 10px;
-      }
-
-      header .settings-icon img {
-        height: 30px;
-        cursor: pointer;
-        padding-right: 10px;
-      }
-
-      .markdown {
-        line-height: 1.6;
-        font-size: 16px;
-      }
-
-      .markdown h2 {
-        font-size: 1.5em;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        color: #333;
-      }
-
-      .markdown ul {
-        margin-left: 20px;
-        list-style-type: disc;
-      }
-
-      .markdown li {
-        margin-bottom: 5px;
-      }
-
-      .markdown strong {
-        font-weight: bold;
-      }
-
-      .markdown em {
-        font-style: italic;
-      }
-
-      .markdown div {
-        margin-bottom: 10px;
-      }
-
-      .main {
-        display: flex;
-        flex-direction: column;
-        padding: 80px 20px 20px 20px;
-        height: calc(100vh - 60px);
-        /* Adjust height to account for the header */
-      }
-
-      .chat-container {
-        flex-grow: 1;
-        overflow-y: auto;
-        margin-bottom: 20px;
-        /* Adjust margin to accommodate footer */
-      }
-
-      .search-box {
+      header .logo {
         display: flex;
         align-items: center;
-        background-color: #fff;
-        padding: 20px 20px;
-        /* Increase padding for a larger box */
-        border-radius: 25px;
-        margin-bottom: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        font-size: 24px;
-        margin-top: 10px;
-        height: 55px;
-        /* Increase height for a larger box */
       }
-
-      .search-box input {
-        flex: 1;
+      header .logo img {
+        height: 50px;
+        padding: 15px;
+      }
+      header .logo h3 {
+        margin-left: 10px;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      header .home-icon img {
+        height: 40px;
+        padding-right: 30px;
+        cursor: pointer;
+      }
+      .settings-icon {
         border: none;
         background: none;
-        margin-left: 10px;
-        outline: none;
-        font-size: 16px; /* Adjust font size for a better fit on mobile */
-      }
-
-      .search-box img {
-        width: 24px;
+        padding: 0;
+        padding-right: 40px;
+        margin: 0;
         cursor: pointer;
       }
 
-      .message {
-        margin: 5px;
-        padding: 10px;
-        border-radius: 10px;
-        color: white;
+      .settings-icon img {
+        height: 24px;
+        cursor: pointer;
+        transition: transform 0.5s;
       }
 
-      .user-message {
-        background-color: #228b22;
-        text-align: right;
+      .rotate {
+        animation: rotate360 0.5s;
       }
 
-      .ai-response {
-        background-color: #2196f3;
-        text-align: left;
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
       }
 
-      .skeleton-loading {
+      .settings-menu {
         display: none;
+        position: absolute;
+        right: 50px;
+        padding: 15px;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
       }
 
-      .skeleton-loading.active {
+      .settings-menu a {
         display: block;
-      }
-
-      .skeleton-loading .message {
-        background-color: #a1a1a1;
-        /* Gray background */
-        animation: pulse 1.5s infinite;
-        /* Animation */
-      }
-
-      @keyframes pulse {
-        0% {
-          opacity: 0.6;
-        }
-
-        50% {
-          opacity: 0.9;
-        }
-
-        100% {
-          opacity: 0.6;
-        }
-      }
-
-      .message-label {
-        font-size: 10px;
-        opacity: 0.8;
-      }
-      .footer {
-        background-color: #f3f1f1;
-        padding: 10px;
-        text-align: center;
-        box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
-        font-size: 14px;
+        padding: 10px 20px;
+        text-decoration: none;
         color: #333;
-        position: fixed;
-        width: 100%;
-        bottom: 0;
-        transition: opacity 0.5s ease;
-        opacity: 1;
+        font-size: 14px;
       }
 
-      .footer p {
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      .crop-info {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
+      .crop-card {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+      }
+
+      .crop-card img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+
+      .crop-card h2 {
+        margin: 10px 0;
+      }
+
+      .crop-card p {
+        margin: 10px 0;
+      }
+
+      .crop-card ul {
+        list-style-type: none;
+        padding: 0;
+      }
+
+      .crop-card li {
         margin: 5px 0;
       }
 
-      .footer a {
-        color: #2196f3;
-        text-decoration: none;
+      @media (min-width: 768px) {
+        .crop-info {
+          grid-template-columns: 1fr 1fr;
+        }
       }
 
-      .footer a:hover {
-        text-decoration: underline;
+      @media (min-width: 1024px) {
+        .crop-info {
+          grid-template-columns: 1fr 1fr 1fr 1fr;
+        }
       }
-      .footer.hidden {
-        opacity: 0;
+      .senior {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        margin-top: 40px;
+        flex-grow: 1;
+      }
+
+      .output-container {
+        display: none;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 600px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        text-align: left;
+      }
+
+      h1 {
+        text-align: center;
+        font-family: var(--font-copernicus), ui-serif, Georgia, "Cambria",
+          "Times New Roman", Times, serif;
+        color: #161515;
+      }
+
+      .search-container {
+        display: flex;
+        margin-top: 20px;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      input[type="text"] {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px 0 0 4px;
+      }
+
+      .search-btn {
+        padding: 10px 15px;
+        background-color: #4caf50;
+        border: none;
+        border-radius: 0 4px 4px 0;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .search-btn img {
+        width: 20px;
+        height: 20px;
+      }
+
+      .search-btn:hover {
+        background-color: #1e6122;
+      }
+
+      .loader {
+        display: none;
+        margin: 20px auto;
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid #4caf50;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #e6f5f0;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #a8aca8;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #007ea6;
       }
     </style>
   </head>
-
   <body>
     <header>
       <div class="logo">
-        <img src="images/linkxy.png" alt="MedLinkX logo" />
+        <img src="images/logobeta.svg" alt="BetaHarvest logo" />
+        <h3>BetaHarvest</h3>
       </div>
-      <div class="settings-icon" onclick="window.location.href='home.html';">
-        <img src="images/home.png" alt="home" />
+      <div class="relative">
+        <button class="settings-icon" onclick="toggleSettingsMenu()">
+          <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="crop_detail.html">Crops Details</a>
+          <a href="farmer-log.html">Farm Log</a>
+          <a href="bot.html">ChatBot</a>
+          <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+        </div>
       </div>
     </header>
-    <div class="main">
-      <div class="chat-container" id="message-area">
-        <!-- Messages will appear here -->
+    <main>
+      <div class="crop-info">
+        <div class="crop-card">
+          <img src="images/tomatoes.jpg" alt="Tomatoes" />
+          <h2>Tomatoes</h2>
+          <p>Planting Season:</p>
+          <ul>
+            <li>Rainy Season (May - September)</li>
+            <li>Dry Season (October - April)</li>
+          </ul>
+        </div>
+        <div class="crop-card">
+          <img src="images/maize.jpg" alt="Maize" />
+          <h2>Maize</h2>
+          <p>Planting Season:</p>
+          <ul>
+            <li>Rainy Season: April - June</li>
+            <li>Dry Season: October - November</li>
+          </ul>
+        </div>
+        <div class="crop-card">
+          <img src="images/groundnut.jpg" alt="Groundnut" />
+          <h2>Groundnut</h2>
+          <p>Planting Season:</p>
+          <ul>
+            <li>Northern Nigeria: April to June</li>
+            <li>Southern Nigeria: May to July</li>
+          </ul>
+        </div>
+        <div class="crop-card">
+          <img src="images/cassava.jpeg" alt="Cassava" />
+          <h2>Cassava</h2>
+          <p>Planting Season:</p>
+          <ul>
+            <li>Dry Season (October - April)</li>
+            <li>Rainy Season (May - June)</li>
+          </ul>
+        </div>
       </div>
-      <div class="skeleton-loading" id="skeleton-loading">
-        <div class="message markdown"></div>
-        <div class="message markdown"></div>
-        <div class="message markdown"></div>
+    </main>
+    <main class="senior">
+      <h1>Find More detail about a crop</h1>
+      <div class="search-container">
+        <input type="text" placeholder="Search..." />
+        <button class="search-btn">
+          <img src="images/search.png" alt="Search" />
+        </button>
       </div>
-      <div class="search-box">
-        <input type="text" placeholder="Enter Prompt Here" id="user-input" />
-        <img src="images/send_icon.png" alt="Send Button" class="send-button" />
-      </div>
-    </div>
-    <div class="footer" id="footer">
-      <p>&copy; <span id="year"></span> Medlinkx. All rights reserved.</p>
-      <p>
-        Developed by
-        <a href="https://linkedin.com/in/akhimien-clement" target="_blank"
-          >Clement</a
-        >
-      </p>
-    </div>
+      <div id="loader" class="loader"></div>
+      <div id="output" class="output-container"></div>
+    </main>
     <script>
-      document.getElementById("year").textContent = new Date().getFullYear();
-      setTimeout(function () {
-        const footer = document.querySelector(".footer");
-        if (footer) {
-          footer.remove();
-        }
-      }, 2000);
+      window.toggleSettingsMenu = function () {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      };
     </script>
     <script type="module">
-      document.addEventListener("DOMContentLoaded", function () {
-        const userEmail = sessionStorage.getItem("userEmail");
-      });
-
-      function welcomeUser(userFullname) {
-        const welcomeMessage = `Hello ${userFullname}, Hi, i am linkxy! How can I help you today?`;
-        displayMessage(welcomeMessage, "ai-response", "AI Response");
-      }
-
       import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
-      const userFullname = sessionStorage.getItem("userFullname");
+      document.addEventListener("DOMContentLoaded", () => {
+        const searchBtn = document.querySelector(".search-btn");
+        const searchInput = document.querySelector('input[type="text"]');
+        const outputText = document.getElementById("output");
+        const outputContainer = document.querySelector(".output-container");
 
-      if (!userFullname) {
-        window.location.href = "login.html"; // Redirect if no user info
-      } else {
-        const userFullname = sessionStorage.getItem("userFullname");
-        welcomeUser(userFullname);
-      }
+        const prompt =
+          "'i want you to act as an AI agribot. you provide essential information on crop planting seasons, optimal weather conditions for growth of the crop, and everything farmers need to know about a crop before planting. all the user has to do is enter a crop. 'do not introduce yourself or talk about anything about yourself just provide farmer's all the useful information about a crop before planting', 'do not answer any question not relating to crop' 'note all content generated should be in the scope of nigeria only. all crop advise should be advise base on nigeria weather condition and soil'; user crop=>: ";
 
-      const API_KEY = "AIzaSyBNUqanEBKJvOrOvmkmsDnHVGTv7kVXZ44";
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-1.5-pro-latest",
-      });
+        searchBtn.addEventListener("click", async () => {
+          const input = prompt + " " + searchInput.value;
+          if (input.trim() === "") {
+            outputText.innerHTML = "Please enter a crop to search.";
+            return;
+          }
+          loader.style.display = "block";
+          outputText.innerHTML = "";
 
-      document
-        .querySelector(".send-button")
-        .addEventListener("click", handleMessage);
-      document
-        .querySelector("#user-input")
-        .addEventListener("keypress", function (event) {
-          if (event.key === "Enter") {
-            event.preventDefault(); // Prevent form submission
-            handleMessage();
+          try {
+            const searchedText = await search(input);
+            const formattedText = markdownToHTML(searchedText);
+            outputText.innerHTML = formattedText;
+            outputContainer.style.display = "block"; // Show the output container
+          } catch (error) {
+            outputText.innerHTML = "Error occurred while searching.";
+            console.error("Error:", error);
+          } finally {
+            loader.style.display = "none";
           }
         });
 
-      function handleMessage() {
-        const inputField = document.getElementById("user-input");
-        const prompt = inputField.value.trim();
-        if (prompt !== "") {
-          displayMessage(prompt, "user-message", "User");
-          inputField.value = ""; // Clear input field
-          run(prompt);
+        async function search(inputText) {
+          const API_KEY = "AIzaSyCviXiVUSELhyRvBCT-_RK0CxxIq9nABbk";
+          const genAI = new GoogleGenerativeAI(API_KEY);
+          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const result = await model.generateContentStream(inputText);
+
+          let searchedText = "";
+          for await (const chunk of result.stream) {
+            const chunkText = chunk.text();
+            searchedText += chunkText;
+          }
+
+          return searchedText;
         }
-      }
 
-      async function run(prompt) {
-        const skeletonLoading = document.getElementById("skeleton-loading");
-        skeletonLoading.classList.add("active"); // Show skeleton loading
-
-        const hardcodedPrompt = `I want you to be Linkxy, an AI doctor that helps provide medical advice on common health issues and first aid treatment. Answer questions about symptoms, treatments, and medications. Offer general wellness tips. Provide clear, concise, and accurate information in a friendly and professional tone. 'Only answer if asked what AI are you, what are you, what is your name, and anything asking about you' say 'I am Linkxy MedLinkx AI, trained by Akhimien Clement' and tell them your capabilities. Lastly, keep these user health info in mind "${sessionStorage.getItem(
-          "userFullname"
-        )}, ${sessionStorage.getItem("userDOB")}, ${sessionStorage.getItem(
-          "userHeight"
-        )}, ${sessionStorage.getItem("userGender")}, ${sessionStorage.getItem(
-          "userMedicalCondition"
-        )}, ${sessionStorage.getItem("userWeight")}, ${sessionStorage.getItem(
-          "userCurrentMedication"
-        )}, ${sessionStorage.getItem(
-          "userAllergies"
-        )}". 'Now answer this question' do not introduce yourself =>:`;
-
-        const combinedPrompt = `${hardcodedPrompt}${prompt}`;
-
-        console.log(userFullname);
-
-        try {
-          const result = await model.generateContent(combinedPrompt);
-          const response = await result.response;
-          const text = await response.text();
-
-          displayMessage(text, "ai-response", "AI Response");
-        } catch (error) {
-          console.error("Error generating content:", error);
-          displayMessage(
-            "Sorry, there was an error processing your request due to safety concern. Please try again later.",
-            "ai-response",
-            "AI Response"
+        function markdownToHTML(markdownText) {
+          // Converts markdown headers # text to HTML headers <h1>text</h1>
+          markdownText = markdownText.replace(/^#\s+(.*)$/gm, "<h1>$1</h1>");
+          // Converts markdown headers ## text to HTML headers <h2>text</h2>
+          markdownText = markdownText.replace(/^##\s+(.*)$/gm, "<h2>$1</h2>");
+          // Converts markdown headers ### text to HTML headers <h3>text</h3>
+          markdownText = markdownText.replace(/^###\s+(.*)$/gm, "<h3>$1</h3>");
+          // Converts markdown bold **text** to HTML bold <strong>text</strong>
+          markdownText = markdownText.replace(
+            /\*\*(.*?)\*\*/g,
+            "<strong>$1</strong>"
           );
-        } finally {
-          skeletonLoading.classList.remove("active"); // Hide skeleton loading after response
+          // Converts markdown italic *text* to HTML italic <em>text</em>
+          markdownText = markdownText.replace(
+            /\*(.*?)\*(?!\*)/g,
+            "<em>$1</em>"
+          );
+          // Converts markdown bullets * item to HTML list <li>item</li>
+          markdownText = markdownText
+            .replace(/^\s*\*\s+(.*)/gm, "<li>$1</li>")
+            .replace(/<\/li>\n<li>/g, "</li><li>");
+          // Wraps lines that are list items with <ul></ul>
+          if (markdownText.includes("<li>")) {
+            markdownText = "<ul>" + markdownText + "</ul>";
+          }
+          return markdownText;
         }
-      }
 
-      function displayMessage(messageText, cssClass, label) {
-        const messageArea = document.getElementById("message-area");
-        let messageDiv = document.createElement("div");
-        messageDiv.classList.add("message", cssClass, "markdown");
-
-        let textNode = document.createElement("div");
-        // Convert markdown to HTML
-        textNode.innerHTML = markdownToHTML(messageText);
-
-        let labelNode = document.createElement("div");
-        labelNode.classList.add("message-label");
-        labelNode.textContent = label;
-
-        messageDiv.appendChild(labelNode);
-        messageDiv.appendChild(textNode);
-        messageArea.appendChild(messageDiv);
-
-        messageArea.scrollTop = messageArea.scrollHeight; // Auto scroll to the bottom
-      }
-      function markdownToHTML(markdownText) {
-        // Converts markdown bold **text** to HTML bold <strong>text</strong>
-        markdownText = markdownText.replace(
-          /\*\*(.*?)\*\*/g,
-          "<strong>$1</strong>"
-        );
-        // Converts markdown italic *text* to HTML italic <em>text</em>
-        markdownText = markdownText.replace(/\*(.*?)\*/g, "<em>$1</em>");
-        // Converts markdown bullets * item to HTML list <li>item</li>
-        markdownText = markdownText
-          .replace(/^\s*\*\s+(.*)/gm, "<li>$1</li>")
-          .replace(/<\/li>\n<li>/g, "</li><li>");
-        // Wraps lines that are list items with <ul></ul>
-        if (markdownText.includes("<li>")) {
-          markdownText = "<ul>" + markdownText + "</ul>";
-        }
-        return markdownText;
-      }
+        searchInput.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            searchBtn.click();
+          }
+        });
+      });
     </script>
   </body>
 </html>
