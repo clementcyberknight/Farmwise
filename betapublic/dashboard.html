@@ -244,11 +244,77 @@
         window.location.href = "login.html";
       }
 
+      const userAddress = sessionStorage.getItem("userAddress");
+      const userEmail = sessionStorage.getItem("userEmail");
+      const userState = sessionStorage.getItem("userState");
+      const userCrop = sessionStorage.getItem("userCrop");
+      const userCountry = sessionStorage.getItem("userCountry");
+      const fullname = sessionStorage.getItem("userFullname");
+      const todayDate = new Date().toISOString().split("T")[0];
+
       const API_KEY = "AIzaSyBNUqanEBKJvOrOvmkmsDnHVGTv7kVXZ44";
       const genAI = new GoogleGenerativeAI(API_KEY);
       const model = genAI.getGenerativeModel({
         model: "gemini-1.5-pro-latest",
       });
+
+      async function fetchAIRecommendation() {
+        const userLog = await fetchRecentLog();
+        const farmlog = await fetchAllLogs();
+        const weatherCondition = await fetchWeatherData();
+
+        const prompt = `Given the following information about the farmer:
+          Location: ${userAddress}, ${userCountry}, ${userState}
+          Username: ${fullname}
+          Date: ${todayDate}
+          Crop Planted: ${userCrop}
+          Farm log Activities (Past and Present): ${farmlog}
+          Weather Condition: ${weatherCondition}
+  
+          Consider the following factors when providing recommendations:
+          - Current season and weather conditions specific to ${userCountry} and ${userState} based on today's date: ${todayDate}
+          - Soil type and condition in the farmer's location
+          - Optimal planting and harvesting times for ${userCrop}
+          - Common pests and diseases in the region, along with prevention and treatment methods
+          - Best irrigation practices for ${userCrop}
+  
+          If there is no farm log activity, suggest the perfect time for the farmer to start planting their crop.
+          Provide recommendations based on these factors to achieve optimal yield and ensure disease-free crops. Keep it concise and within 40 words.`;
+
+        try {
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          const text = await response.text();
+          displayAIRecommendation(text);
+        } catch (error) {
+          console.error("Error generating AI recommendation:", error);
+          displayAIRecommendation(
+            "Sorry, there was an error fetching your AI recommendation. Please try again later."
+          );
+        }
+      }
+
+      async function fetchAllLogs() {
+        const farmerslogCollectionRef = collection(
+          db,
+          "farmer_log",
+          userID,
+          "log"
+        );
+        const q = query(farmerslogCollectionRef, orderBy("date", "desc"));
+
+        try {
+          const querySnapshot = await getDocs(q);
+          const logs = [];
+          querySnapshot.forEach((doc) => {
+            logs.push(doc.data());
+          });
+          return JSON.stringify(logs);
+        } catch (error) {
+          console.error("Error fetching all logs: ", error);
+          return "Error fetching logs.";
+        }
+      }
 
       async function fetchRecentLog() {
         const farmerslogCollectionRef = collection(
@@ -265,10 +331,18 @@
 
         try {
           const querySnapshot = await getDocs(q);
-          return querySnapshot.empty ? null : querySnapshot.docs[0].data();
+          if (!querySnapshot.empty) {
+            const logData = querySnapshot.docs[0].data();
+            updateRecentLogDisplay(logData);
+            return JSON.stringify(logData);
+          } else {
+            updateRecentLogDisplay(null);
+            return "No recent log";
+          }
         } catch (error) {
           console.error("Error fetching recent log: ", error);
-          return null;
+          updateRecentLogDisplay(null);
+          return "Error fetching recent log.";
         }
       }
 
@@ -278,48 +352,38 @@
 
         if (log) {
           recentLogEntry.innerHTML = `
-                  <p><strong>Date:</strong> ${
-                    log.date
-                  } | <strong>Time:</strong> ${log.time}</p>
-                  <p><strong>Activity:</strong> ${log.activity}</p>
-                  <p><strong>Note:</strong> ${log.note || "N/A"}</p>
-              `;
+          <p><strong>Date:</strong> ${log.date} | <strong>Time:</strong> ${
+            log.time
+          }</p>
+          <p><strong>Activity:</strong> ${log.activity}</p>
+          <p><strong>Note:</strong> ${log.note || "N/A"}</p>
+        `;
           recentFarmLog.classList.remove("hidden");
         } else {
           recentLogEntry.innerHTML = "No recent log";
         }
       }
 
-      async function fetchWeatherData(lat, lon) {
+      async function fetchWeatherData() {
         const apiKey = "6643a51c878047b6aed175732241007";
         try {
           const response = await fetch(
-            `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}`
+            `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${userAddress}`
           );
           const data = await response.json();
           document.getElementById("weather-data").innerHTML = `
-                  <p>${data.location.name}, ${data.location.region}</p>
-                  <p>${data.current.temp_c}°C - ${data.current.condition.text}</p>
-              `;
+            <p>${data.location.name}, ${data.location.region}</p>
+            <p>${data.current.temp_c}°C - ${data.current.condition.text}</p>
+            <p>Humidity: ${data.current.humidity}%</p>
+            <p>Wind Speed: ${data.current.wind_kph} km/h</p>
+          `;
+          return JSON.stringify(data.current);
         } catch (error) {
           console.error("Error fetching weather data:", error);
+          return "Error fetching weather data.";
         }
       }
 
-      function getLocation() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) =>
-              fetchWeatherData(
-                position.coords.latitude,
-                position.coords.longitude
-              ),
-            (error) => console.error("Error getting location:", error)
-          );
-        } else {
-          console.error("Geolocation is not supported by this browser.");
-        }
-      }
       async function fetchAndDisplayCropStage() {
         const cropStageElement = document.querySelector(".crop-card");
 
@@ -340,37 +404,30 @@
           if (!querySnapshot.empty) {
             const latestStage = querySnapshot.docs[0].data().prediction;
             cropStageElement.innerHTML = `
-        <h2>Crop Stage</h2>
-        <p>${latestStage}</p>
-      `;
+              <h2>Crop Stage</h2>
+              <p>${latestStage}</p>
+            `;
           } else {
             cropStageElement.innerHTML = `
-        <h2>Crop Stage</h2>
-        <p>No crop stage data available yet.</p>
-      `;
+              <h2>Crop Stage</h2>
+              <p>No crop stage data available yet.</p>
+            `;
           }
         } catch (error) {
           console.error("Error fetching crop stage: ", error);
           cropStageElement.innerHTML = `
-      <h2>Crop Stage</h2>
-      <p>Error fetching crop stage.</p>
-    `;
+            <h2>Crop Stage</h2>
+            <p>Error fetching crop stage.</p>
+          `;
         }
       }
 
-      window.addEventListener("load", fetchAndDisplayCropStage);
-
-      async function initializeDashboard() {
-        getLocation();
-        const recentLog = await fetchRecentLog();
-
-        updateRecentLogDisplay(recentLog);
+      function displayAIRecommendation(recommendation) {
+        const aiRecommendationElement =
+          document.getElementById("ai-recommendation");
+        aiRecommendationElement.textContent = recommendation;
       }
 
-      window.addEventListener("load", initializeDashboard);
-      window.addEventListener("load", fetchAndDisplayCropStage);
-
-      // Make toggleSettingsMenu globally accessible
       window.toggleSettingsMenu = function () {
         const settingsMenu = document.getElementById("settingsMenu");
         const menuIcon = document.getElementById("menuIcon");
@@ -379,6 +436,10 @@
         menuIcon.classList.add("rotate");
         setTimeout(() => menuIcon.classList.remove("rotate"), 500);
       };
+
+      fetchAIRecommendation();
+      fetchWeatherData();
+      fetchAndDisplayCropStage();
     </script>
   </body>
 </html>
