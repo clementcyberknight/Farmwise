@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BetaHarvest</title>
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: #eceff1;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      header {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        text-align: left;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      header .logo {
+        display: flex;
+        align-items: center;
+      }
+      header .logo img {
+        height: 50px;
+        padding: 15px;
+      }
+      header .logo h3 {
+        margin-left: 10px;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      header .home-icon img {
+        height: 40px;
+        padding-right: 30px;
+        cursor: pointer;
+      }
+      .settings-icon {
+        border: none;
+        background: none;
+        padding: 0;
+        padding-right: 40px;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .settings-icon img {
+        height: 24px;
+        cursor: pointer;
+        transition: transform 0.5s;
+      }
+
+      .rotate {
+        animation: rotate360 0.5s;
+      }
+
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .settings-menu {
+        display: none;
+        position: absolute;
+        right: 50px;
+        padding: 15px;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+
+      .settings-menu a {
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
+
+      #upload-section {
+        margin-top: 120px;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+      }
+
+      #image-upload {
+        margin-bottom: 20px;
+      }
+
+      .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+        background-color: #3498db;
+        color: white;
+        border-radius: 4px;
+      }
+
+      #file-upload {
+        display: none;
+      }
+
+      #image-preview {
+        max-width: 100%;
+        height: 200px;
+        border: 2px dashed #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      #image-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      }
+
+      textarea {
+        width: 100%;
+        height: 100px;
+        padding: 5px;
+        resize: vertical;
+        font-size: 16px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      #submit-button {
+        background-color: #2ecc71;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      #result-section {
+        display: none;
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+      }
+
+      #advice-output {
+        min-height: 100px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 4px;
+      }
+
+      #spinner {
+        display: none;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+      }
+
+      .alert {
+        display: none;
+        color: white;
+        background-color: #e74c3c;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 10px;
+        text-align: center;
+        animation: fadeIn 0.5s ease-in-out, fadeOut 0.5s ease-in-out 3s;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #e6f5f0;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #6d796e;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #007ea6;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <img src="images/logobeta.svg" alt="BetaHarvest logo" />
+        <h3>BetaHarvest</h3>
+      </div>
+      <div class="relative">
+        <button class="settings-icon" onclick="toggleSettingsMenu()">
+          <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="crop_detail.html">Crops Details</a>
+          <a href="farmer-log.html">Farm Log</a>
+          <a href="bot.html">ChatBot</a>
+          <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+        </div>
+      </div>
+    </header>
+    <main>
+      <section id="upload-section">
+        <div id="image-upload">
+          <label for="file-upload" class="custom-file-upload">
+            <i class="fas fa-cloud-upload-alt"></i> Upload Image
+          </label>
+          <input id="file-upload" type="file" accept="image/*" />
+          <div id="image-preview"></div>
+        </div>
+        <div id="text-prompt">
+          <textarea
+            placeholder="Describe your farming issue or question..."
+          ></textarea>
+        </div>
+        <button id="submit-button">Submit</button>
+        <div id="spinner"></div>
+        <div id="alert" class="alert">
+          Please upload an image and enter a prompt.
+        </div>
+      </section>
+      <section id="result-section">
+        <h2>AI Advice</h2>
+        <div id="text-output"></div>
+      </section>
+    </main>
+    <script type="module">
+      import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+      let imageFile; // Declare imageFile variable in the outer scope
+      const imagePreview = document.getElementById("image-preview");
+
+      document.getElementById("file-upload").addEventListener("change", (e) => {
+        imageFile = e.target.files[0];
+        if (imageFile) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            imagePreview.classList.add("fade-in");
+          };
+          reader.readAsDataURL(imageFile);
+        }
+      });
+
+      document
+        .getElementById("submit-button")
+        .addEventListener("click", async () => {
+          const textPrompt = document.querySelector(
+            "#text-prompt textarea"
+          ).value;
+          const alertDiv = document.getElementById("alert");
+
+          if (imageFile && textPrompt) {
+            const spinner = document.getElementById("spinner");
+            const resultSection = document.getElementById("result-section");
+
+            spinner.style.display = "block";
+            resultSection.style.display = "none";
+            alertDiv.style.display = "none";
+
+            const imagePart = await fileToGenerativePart(imageFile);
+            const prompt = [textPrompt, imagePart];
+
+            const genAI = new GoogleGenerativeAI(
+              "AIzaSyCviXiVUSELhyRvBCT-_RK0CxxIq9nABbk"
+            );
+            const model = genAI.getGenerativeModel({
+              model: "gemini-1.5-flash",
+            });
+
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            const text = await response.text();
+
+            spinner.style.display = "none";
+            resultSection.style.display = "block";
+            document.getElementById("text-output").innerText = text;
+          } else {
+            alertDiv.style.display = "block";
+            setTimeout(() => {
+              alertDiv.style.display = "none";
+            }, 2000); // Hide the alert after 2 seconds
+          }
+        });
+
+      async function fileToGenerativePart(file) {
+        const base64EncodedDataPromise = new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result.split(",")[1]);
+          reader.readAsDataURL(file);
+        });
+        return {
+          inlineData: {
+            data: await base64EncodedDataPromise,
+            mimeType: file.type,
+          },
+        };
+      }
+
+      window.toggleSettingsMenu = function () {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      };
+    </script>
+  </body>
+</html>
