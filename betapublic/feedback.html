@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback Form - BetaHarvest</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      sizes="64x64"
+      href="images/logobeta.svg"
+      type="image/x-svg"
+    />
+    <style>
+      body {
+        font-family: "Roboto", sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #eceff1;
+        color: #fff;
+        padding-top: 100px;
+      }
+      header {
+        background-color: #ffffff;
+        padding: 10px 20px;
+        text-align: left;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      header .logo {
+        display: flex;
+        align-items: center;
+      }
+      header .logo img {
+        height: 50px;
+        padding: 15px;
+      }
+      header .logo h3 {
+        margin-left: 10px;
+        font-size: 1.5rem;
+        color: #333;
+      }
+      header .home-icon img {
+        height: 40px;
+        padding-right: 30px;
+        cursor: pointer;
+      }
+      .settings-icon {
+        border: none;
+        background: none;
+        padding: 0;
+        padding-right: 40px;
+        margin: 0;
+        cursor: pointer;
+      }
+
+      .settings-icon img {
+        height: 24px;
+        cursor: pointer;
+        transition: transform 0.5s;
+      }
+
+      .rotate {
+        animation: rotate360 0.5s;
+      }
+
+      @keyframes rotate360 {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .settings-menu {
+        display: none;
+        position: absolute;
+        right: 50px;
+        padding: 15px;
+        top: 60px;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        z-index: 1001;
+      }
+
+      .settings-menu a {
+        display: block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: #333;
+        font-size: 14px;
+      }
+
+      .settings-menu a:hover {
+        background-color: #f0f4f8;
+      }
+
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: rgb(255, 255, 255);
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #000000;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: #000000;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: #ffffff;
+        color: rgb(0, 0, 0);
+      }
+
+      .alert {
+        width: 100%;
+        background: #5a9e6b;
+        /* A more pleasant green */
+        border-radius: 5px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: 900;
+        padding: 10px 0;
+        margin: 20px 0;
+        display: none;
+        /* Hidden by default */
+        color: white;
+        /* Ensuring text is white for better readability */
+      }
+
+      textarea {
+        height: 150px;
+        resize: vertical;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #4caf50;
+      }
+
+      @media only screen and (max-width: 600px) {
+        .container {
+          padding: 20px;
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 12px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #656665;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #ffffff;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #007ea6;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo">
+        <img src="images/logobeta.svg" alt="BetaHarvest logo" />
+        <h3>BetaHarvest</h3>
+      </div>
+      <div class="relative">
+        <button class="settings-icon" onclick="toggleSettingsMenu()">
+          <img src="images/menu.png" alt="menu_icon" id="menuIcon" />
+        </button>
+        <div class="settings-menu" id="settingsMenu">
+          <a href="dashboard.html">Dashboard</a>
+          <a href="crop_detail.html">Crops Details</a>
+          <a href="farmer-log.html">Farm Log</a>
+          <a href="image_AI.html">Image AI</a>
+          <a href="bot.html">ChatBot</a>
+          <a href="feedback.html">Feedback</a>
+          <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
+        </div>
+      </div>
+    </header>
+    <div class="container">
+      <h1>We Value Your Feedback</h1>
+      <form id="feedbackForm">
+        <div class="alert">Thanks For Your Feedback</div>
+        <div class="form-group">
+          <label for="name">Your Name (Optional):</label>
+          <input type="text" id="name" name="name" aria-label="Name" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email (Optional):</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            aria-label="Email"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="feedback">Your Feedback:</label>
+          <textarea
+            id="feedback"
+            name="feedback"
+            aria-label="Feedback"
+            required
+          ></textarea>
+        </div>
+        <button type="submit">Submit Feedback</button>
+      </form>
+    </div>
+
+    <script>
+      window.toggleSettingsMenu = function () {
+        const settingsMenu = document.getElementById("settingsMenu");
+        const menuIcon = document.getElementById("menuIcon");
+        const isOpen = settingsMenu.style.display === "block";
+        settingsMenu.style.display = isOpen ? "none" : "block";
+        menuIcon.classList.add("rotate");
+        setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      };
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/7.14.1-0/firebase-database.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyBYhzRyNuh7NWh8YXIdHyuwZHE_fIZGX9Y",
+        authDomain: "mybetaharvest.firebaseapp.com",
+        databaseURL: "https://mybetaharvest-default-rtdb.firebaseio.com",
+        projectId: "mybetaharvest",
+        storageBucket: "mybetaharvest.appspot.com",
+        messagingSenderId: "370925949496",
+        appId: "1:370925949496:web:6fe3dea100315059f40ccd",
+        measurementId: "G-BE44KWEGR2",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      var feedbackFormDB = firebase.database().ref("feedbackform");
+
+      document
+        .getElementById("feedbackForm")
+        .addEventListener("submit", submitform);
+
+      function submitform(e) {
+        e.preventDefault();
+        var name = getElementval("name");
+        var emailid = getElementval("email");
+        var feedbackcontent = getElementval("feedback");
+
+        saveFeedback(name, emailid, feedbackcontent);
+
+        document.querySelector(".alert").style.display = "block";
+
+        setTimeout(() => {
+          document.querySelector(".alert").style.display = "none";
+        }, 4000);
+
+        document.getElementById("feedbackForm").reset();
+      }
+      const saveFeedback = (name, emailid, feedbackcontent) => {
+        var newFeedbackForm = feedbackFormDB.push();
+
+        newFeedbackForm.set({
+          name: name,
+          emailid: emailid,
+          feedbackcontent: feedbackcontent,
+        });
+      };
+
+      const getElementval = (id) => {
+        return document.getElementById(id).value;
+      };
+    </script>
+  </body>
+</html>

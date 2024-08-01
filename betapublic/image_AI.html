@@ -309,6 +309,8 @@
       let imageFile; // Declare imageFile variable in the outer scope
       const imagePreview = document.getElementById("image-preview");
 
+      const userID = sessionStorage.getItem("userID");
+
       if (!userID) {
         window.location.href = "login.html";
       }
@@ -325,6 +327,16 @@
         }
       });
 
+      function markdownToHtml(markdown) {
+        return markdown
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // Convert bold text
+          .replace(/\*(.*?)\*/g, "<em>$1</em>") // Convert italic text
+          .replace(/\n/g, "<br>") // Convert new lines to <br>
+          .replace(/- /g, "<li>") // Convert list items
+          .replace(/<li>/g, "<ul><li>")
+          .replace(/<\/li>(?!<li>)/g, "</li></ul>"); // Wrap lists in <ul>
+      }
+
       document
         .getElementById("submit-button")
         .addEventListener("click", async () => {
@@ -339,7 +351,7 @@
           const fullname = sessionStorage.getItem("userFullname");
           const todayDate = new Date().toISOString().split("T")[0];
 
-          const promt = `want you to provide the farmer with the best advice based on the image and prompt they provide to obtain the best crop yield. If the image and prompt they provide is not agriculture related, please reply with: this is not agriculture related.
+          const promt = `want you to provide the farmer with the best advice based on the image and prompt they provide to obtain the best crop yield. If the image and prompt they provide is not related to plant or animal, please reply with: this is not agriculture related.
       Here are the details of the farmer:
       - Name: ${fullname}
       - Address: ${userAddress}
@@ -348,7 +360,6 @@
       - Crop: ${userCrop}
       - Date: ${todayDate}'.... farmerprompt=>`;
           const master_prompt = promt + " " + textPrompt;
-          console.log(master_prompt);
 
           if (imageFile && textPrompt) {
             const spinner = document.getElementById("spinner");
@@ -372,11 +383,10 @@
             const response = await result.response;
             const text = await response.text();
 
-            text = text.replace(/\*\*\*/g, "");
-
             spinner.style.display = "none";
             resultSection.style.display = "block";
-            document.getElementById("text-output").innerText = text;
+            document.getElementById("text-output").innerHTML =
+              markdownToHtml(text);
           } else {
             alertDiv.style.display = "block";
             setTimeout(() => {

@@ -190,6 +190,7 @@
           <a href="farmer-log.html">Farm Log</a>
           <a href="image_AI.html">Image AI</a>
           <a href="bot.html">ChatBot</a>
+          <a href="feedback.html">Feedback</a>
           <a href="index.html" onclick="sessionStorage.clear();">Logout</a>
         </div>
       </div>
@@ -214,6 +215,13 @@
         </div>
       </div>
     </div>
+    <script>
+      const userID = sessionStorage.getItem("userID");
+
+      if (!userID) {
+        window.location.href = "login.html";
+      }
+    </script>
     <script type="module">
       import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -238,11 +246,6 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getFirestore(app);
-      const userID = sessionStorage.getItem("userID");
-
-      if (!userID) {
-        window.location.href = "login.html";
-      }
 
       const userAddress = sessionStorage.getItem("userAddress");
       const userEmail = sessionStorage.getItem("userEmail");
@@ -391,7 +394,14 @@
           if (!navigator.geolocation) {
             reject(new Error("Geolocation is not supported by this browser."));
           } else {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
+            navigator.geolocation.getCurrentPosition(resolve, () => {
+              resolve({
+                coords: {
+                  latitude: 6.5244,
+                  longitude: 3.3792,
+                },
+              });
+            });
           }
         });
       }

@@ -121,7 +121,7 @@
         opacity: 0;
         transform: translateY(20px);
         max-width: 600px;
-        margin: 0 auto;
+        margin: 10px auto;
       }
 
       #farmLogForm.visible {
@@ -216,6 +216,7 @@
         }
 
         #farmLogForm {
+          margin-top: 10px;
           padding: 15px;
         }
 
@@ -269,8 +270,8 @@
         padding: 20px;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-top: 20px;
-        max-width: 600px;
+        margin-top: 12px;
+        max-width: 700px;
         margin-left: auto;
         margin-right: auto;
       }
@@ -343,7 +344,7 @@
           </form>
         </div>
       </main>
-      <button id="addLogBtn" class="add-btn">+</button>
+      <button href="#logForm" id="addLogBtn" class="add-btn">+</button>
     </div>
     <script>
       function toggleSettingsMenu() {
@@ -353,6 +354,12 @@
         settingsMenu.style.display = isOpen ? "none" : "block";
         menuIcon.classList.add("rotate");
         setTimeout(() => menuIcon.classList.remove("rotate"), 500);
+      }
+
+      const userID = sessionStorage.getItem("userID");
+
+      if (!userID) {
+        window.location.href = "login.html";
       }
     </script>
     <script type="module">
@@ -390,15 +397,11 @@
       const errorAlert = document.getElementById("errorAlert");
       const farmLogList = document.getElementById("farmLogList");
       const logEntries = document.getElementById("logEntries");
-      const userID = sessionStorage.getItem("userID");
-
-      if (!userID) {
-        window.location.href = "login.html";
-      }
 
       let isFormVisible = false;
 
       async function fetchAndDisplayLogs() {
+        const userID = sessionStorage.getItem("userID");
         const farmerslogCollectionRef = collection(
           db,
           "farmer_log",
@@ -521,24 +524,27 @@
           return "Error predicting crop stage";
         }
       }
-
       addLogBtn.addEventListener("click", () => {
         isFormVisible = !isFormVisible;
         if (isFormVisible) {
           farmLogForm.classList.remove("hidden");
           farmLogList.classList.add("hidden");
+          addLogBtn.textContent = "-";
           setTimeout(() => {
             farmLogForm.classList.add("visible");
+            farmLogForm.scrollIntoView({ behavior: "smooth" });
           }, 10);
         } else {
           farmLogForm.classList.remove("visible");
+          addLogBtn.textContent = "+";
           setTimeout(() => {
             farmLogForm.classList.add("hidden");
             farmLogList.classList.remove("hidden");
           }, 300);
-          fetchAndDisplayLogs(); // Refresh the log list when toggling back to it
+          fetchAndDisplayLogs();
         }
       });
+
       window.addEventListener("load", fetchAndDisplayLogs());
     </script>
   </body>
